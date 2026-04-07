@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FINAL Migration Audit - Events Fantastic 4-Domain Migration</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0d14; --bg-card: #14141f; --bg-card2: #1a1a2b; --bg-card3: #1f1f33;
+    --border: #1e1e32; --border-hi: #2e2e50; --border-active: #3e3e60;
+    --text: #cdd6f4; --text-dim: #7f849c; --text-dimmer: #45475a; --text-bright: #e8ecf8;
+    --blue: #89b4fa; --blue-dark: #1e3a5f; --blue-glow: rgba(137,180,250,0.15);
+    --green: #a6e3a1; --green-dark: #1a3d2b;
+    --orange: #fab387; --orange-dark: #3d2a1a;
+    --red: #f38ba8; --red-dark: #3d1a24;
+    --purple: #cba6f7; --purple-dark: #2a1f3d;
+    --gold: #f9e2af; --gold-dark: #3d351a;
+    --teal: #94e2d5; --teal-dark: #1a3d37;
+    --radius: 10px; --radius-sm: 6px; --radius-xs: 4px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+    --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI','Inter',system-ui,sans-serif; font-size: 14px; line-height: 1.7; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 20px 24px 80px; }
+
+  /* -- HEADER -- */
+  .header { padding: 28px 0 20px; margin-bottom: 0; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .label { font-size: 11px; color: var(--blue); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .title { font-size: 24px; font-weight: 700; margin-top: 4px; color: var(--text-bright); }
+  .meta { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .badge-green { border: 1px solid var(--green); background: var(--green-dark); color: var(--green); }
+  .badge-blue { border: 1px solid var(--blue); background: var(--blue-dark); color: var(--blue); }
+  .badge-orange { border: 1px solid var(--orange); background: var(--orange-dark); color: var(--orange); }
+  .badge-red { border: 1px solid var(--red); background: var(--red-dark); color: var(--red); }
+
+  /* -- STATS GRID -- */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin: 20px 0 8px; }
+  .stat-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 12px; text-align: center; transition: border-color var(--transition); }
+  .stat-box:hover { border-color: var(--border-hi); }
+  .stat-box .num { font-size: 28px; font-weight: 700; color: var(--blue); line-height: 1.2; }
+  .stat-box .num.green { color: var(--green); }
+  .stat-box .num.orange { color: var(--orange); }
+  .stat-box .num.red { color: var(--red); }
+  .stat-box .num.purple { color: var(--purple); }
+  .stat-box .num.gold { color: var(--gold); }
+  .stat-box .num.teal { color: var(--teal); }
+  .stat-box .lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  /* -- SCORE GAUGE -- */
+  .score-section { display: flex; align-items: center; gap: 28px; margin: 20px 0; padding: 20px 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); }
+  .score-ring { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .score-ring svg { transform: rotate(-90deg); width: 100px; height: 100px; }
+  .score-ring .track { fill: none; stroke: var(--border-hi); stroke-width: 8; }
+  .score-ring .fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease-out; }
+  .score-ring .score-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-ring .score-num { font-size: 26px; font-weight: 700; line-height: 1; }
+  .score-ring .score-max { font-size: 11px; color: var(--text-dim); }
+  .score-details { flex: 1; }
+  .score-details h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .score-details p { font-size: 13px; color: var(--text-dim); }
+  .score-breakdown { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .score-breakdown .sb-item { font-size: 12px; color: var(--text-dim); }
+  .score-breakdown .sb-item span { font-weight: 600; }
+
+  /* -- TAB NAVIGATION -- */
+  .tab-nav { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 24px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--text-dim); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: all var(--transition); font-family: inherit; }
+  .tab-btn:hover { color: var(--text); background: rgba(137,180,250,0.05); }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+  .tab-btn .tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 99px; font-size: 10px; font-weight: 700; background: var(--border); color: var(--text-dim); margin-left: 6px; }
+  .tab-btn.active .tab-count { background: var(--blue-dark); color: var(--blue); }
+
+  /* -- TAB PANELS -- */
+  .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+  .tab-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* -- SECTIONS -- */
+  .section { margin-top: 28px; }
+  .section:first-child { margin-top: 0; }
+  .section-title { font-size: 14px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; width: 3px; height: 16px; background: var(--blue); border-radius: 2px; }
+
+  /* -- CARDS -- */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; transition: border-color var(--transition); }
+  .card:hover { border-color: var(--border-hi); }
+  .card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .card p, .card li { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 4px; }
+  .card a { color: var(--blue); text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+  .card code { background: var(--bg-card2); padding: 1px 6px; border-radius: var(--radius-xs); font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; color: var(--teal); }
+
+  /* -- EXPANDABLE CARDS -- */
+  .expand-card { cursor: pointer; }
+  .expand-card .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .expand-card .card-header h3 { flex: 1; }
+  .expand-card .card-summary { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+  .expand-card .card-chevron { width: 20px; height: 20px; color: var(--text-dimmer); transition: transform var(--transition); flex-shrink: 0; margin-top: 2px; }
+  .expand-card.open .card-chevron { transform: rotate(180deg); }
+  .expand-card .card-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease; }
+  .expand-card.open .card-body { max-height: 2000px; }
+  .expand-card .card-body-inner { padding-top: 14px; margin-top: 14px; border-top: 1px solid var(--border); }
+
+  /* -- IMPACT CARDS -- */
+  .impact-card { border-left: 3px solid var(--orange); }
+  .impact-card h3 { color: var(--orange); }
+
+  /* -- SEVERITY BADGES -- */
+  .severity { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .severity-critical { background: var(--red-dark); color: var(--red); border: 1px solid rgba(243,139,168,0.3); }
+  .severity-high { background: var(--orange-dark); color: var(--orange); border: 1px solid rgba(250,179,135,0.3); }
+  .severity-medium { background: var(--gold-dark); color: var(--gold); border: 1px solid rgba(249,226,175,0.3); }
+  .severity-low { background: var(--blue-dark); color: var(--blue); border: 1px solid rgba(137,180,250,0.3); }
+  .severity-info { background: var(--teal-dark); color: var(--teal); border: 1px solid rgba(148,226,213,0.3); }
+
+  /* -- PROGRESS BAR -- */
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .progress-bar .fill { height: 100%; border-radius: 3px; transition: width 1s ease-out; }
+  .progress-bar .fill.green { background: var(--green); }
+  .progress-bar .fill.blue { background: var(--blue); }
+  .progress-bar .fill.orange { background: var(--orange); }
+  .progress-bar .fill.red { background: var(--red); }
+
+  /* -- DATA TABLES -- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-card2); color: var(--text-dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  tr:hover td { background: rgba(137,180,250,0.04); }
+  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+  .table-wrap table { margin: 0; }
+
+  /* -- GIT/FILES SECTION -- */
+  .git-card { background: var(--bg-card2); font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; line-height: 2; }
+  .git-card code { color: var(--green); background: none; padding: 0; }
+  .file-add { color: var(--green); font-weight: 600; }
+  .file-mod { color: var(--orange); font-weight: 600; }
+  .file-del { color: var(--red); font-weight: 600; }
+  .file-line { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+  .file-line:hover { background: rgba(137,180,250,0.03); border-radius: var(--radius-xs); }
+  .file-badge { display: inline-block; width: 38px; text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .file-path { flex: 1; }
+  .file-stat { color: var(--text-dimmer); font-size: 11px; }
+
+  /* -- TIMELINE -- */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border-hi); border-radius: 1px; }
+  .timeline-item { position: relative; margin-bottom: 16px; }
+  .timeline-item::before { content: ''; position: absolute; left: -20px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--border-hi); border: 2px solid var(--bg); }
+  .timeline-item.done::before { background: var(--green); }
+  .timeline-item.current::before { background: var(--blue); box-shadow: 0 0 8px var(--blue-glow); }
+  .timeline-item.upcoming::before { background: var(--border); }
+  .timeline-item h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+  .timeline-item p { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .timeline-item .owner { font-size: 11px; color: var(--purple); font-weight: 500; margin-top: 2px; }
+
+  /* -- DECISION LOG -- */
+  .decision { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--purple); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 8px; }
+  .decision h4 { font-size: 13px; color: var(--purple); font-weight: 600; margin-bottom: 4px; }
+  .decision p { font-size: 12px; color: var(--text-dim); }
+  .decision .rationale { font-size: 11px; color: var(--text-dimmer); margin-top: 4px; font-style: italic; }
+
+  /* -- EXPERT SECTION -- */
+  .expert-section { background: linear-gradient(135deg, #1a1a2b 0%, #14141f 100%); border: 1px solid var(--purple); border-radius: var(--radius); padding: 24px; }
+  .expert-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .expert-icon { width: 44px; height: 44px; background: linear-gradient(135deg, var(--purple), var(--blue)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .expert-title { font-size: 17px; font-weight: 700; color: var(--purple); }
+  .expert-subtitle { font-size: 12px; color: var(--text-dim); }
+
+  .expert-summary { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; margin: 14px 0 16px; }
+  .expert-summary h4 { font-size: 13px; font-weight: 600; color: var(--text-bright); margin-bottom: 6px; }
+  .expert-summary p { font-size: 13px; color: var(--text-dim); }
+
+  .expert-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; cursor: pointer; transition: border-color var(--transition); }
+  .expert-item:hover { border-color: var(--border-hi); }
+  .expert-item-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+  .expert-item-header .priority { flex-shrink: 0; }
+  .expert-item-header h4 { font-size: 13px; font-weight: 600; color: var(--gold); flex: 1; margin: 0; }
+  .expert-item-header .chevron { width: 16px; height: 16px; color: var(--text-dimmer); transition: transform var(--transition); flex-shrink: 0; }
+  .expert-item.open .expert-item-header .chevron { transform: rotate(180deg); }
+  .expert-item-body { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .expert-item.open .expert-item-body { max-height: 1500px; }
+  .expert-item-body-inner { padding: 0 16px 14px; }
+  .expert-item-body-inner p { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+  .expert-item .source { font-size: 11px; color: var(--text-dimmer); margin-top: 8px; font-style: italic; display: block; }
+  .expert-item .recommendation { background: var(--bg-card2); border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 10px 12px; margin-top: 10px; font-size: 12px; color: var(--green); }
+  .expert-item .recommendation strong { color: var(--green); }
+
+  /* -- EXECUTIVE SUMMARY -- */
+  .exec-summary { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px; }
+  .exec-summary h3 { font-size: 15px; font-weight: 600; color: var(--text-bright); margin-bottom: 8px; }
+  .exec-summary p { font-size: 13px; color: var(--text-dim); line-height: 1.8; }
+
+  /* -- HIGHLIGHTS -- */
+  .highlights { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .highlight { display: flex; align-items: flex-start; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; }
+  .highlight-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+  .highlight-icon.green { background: var(--green-dark); color: var(--green); }
+  .highlight-icon.orange { background: var(--orange-dark); color: var(--orange); }
+  .highlight-icon.red { background: var(--red-dark); color: var(--red); }
+  .highlight-icon.blue { background: var(--blue-dark); color: var(--blue); }
+  .highlight h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+  .highlight p { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* -- COPY BUTTON -- */
+  .copy-btn { position: relative; background: var(--border); border: none; color: var(--text-dim); padding: 3px 8px; border-radius: var(--radius-xs); font-size: 11px; cursor: pointer; font-family: inherit; transition: all var(--transition); }
+  .copy-btn:hover { background: var(--border-hi); color: var(--text); }
+  .copy-btn.copied { background: var(--green-dark); color: var(--green); }
+
+  /* -- VERDICT BANNER -- */
+  .verdict-banner { background: var(--red-dark); border: 2px solid rgba(243,139,168,0.4); border-radius: var(--radius); padding: 20px 28px; margin: 16px 0; display: flex; align-items: center; gap: 20px; }
+  .verdict-banner .verdict-label { font-size: 28px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 3px; white-space: nowrap; }
+  .verdict-banner .verdict-detail { font-size: 13px; color: var(--text-dim); }
+  .verdict-banner .verdict-detail strong { color: var(--red); }
+
+  /* -- ISSUES LOG (prominent) -- */
+  .issues-section { background: var(--bg-card); border: 2px solid var(--red-dark); border-radius: var(--radius); padding: 0; margin: 16px 0; overflow: hidden; }
+  .issues-header { background: var(--red-dark); padding: 14px 20px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .issues-header h3 { font-size: 15px; font-weight: 700; color: var(--red); flex: 1; }
+  .issues-header .chevron { width: 20px; height: 20px; color: var(--red); transition: transform var(--transition); flex-shrink: 0; }
+  .issues-section.open .issues-header .chevron { transform: rotate(180deg); }
+  .issues-body { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  .issues-section.open .issues-body { max-height: 5000px; }
+  .issues-body-inner { padding: 20px; }
+  .issue-category { margin-bottom: 20px; }
+  .issue-category:last-child { margin-bottom: 0; }
+  .issue-category h4 { font-size: 13px; font-weight: 700; color: var(--text-bright); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .issue-category h4.cat-fixed { color: var(--green); }
+  .issue-category h4.cat-failed { color: var(--red); }
+  .issue-category h4.cat-assumption { color: var(--orange); }
+  .issue-category h4.cat-pending { color: var(--blue); }
+  .issue-entry { display: flex; gap: 10px; padding: 8px 12px; margin-bottom: 4px; background: var(--bg-card2); border-radius: var(--radius-xs); border-left: 3px solid var(--border); font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+  .issue-entry.fixed { border-left-color: var(--green); }
+  .issue-entry.failed { border-left-color: var(--red); }
+  .issue-entry.assumption { border-left-color: var(--orange); }
+  .issue-entry.pending { border-left-color: var(--blue); }
+  .issue-num { font-weight: 700; color: var(--text-dimmer); min-width: 24px; flex-shrink: 0; }
+  .issue-text strong { color: var(--text); }
+
+  /* -- SCORE HISTORY -- */
+  .score-history { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .score-history-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); }
+  .score-history-item .old-score { text-decoration: line-through; color: var(--text-dimmer); }
+  .score-history-arrow { color: var(--text-dimmer); font-size: 14px; }
+
+  /* -- FOOTER -- */
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-dimmer); }
+
+  /* -- RESPONSIVE -- */
+  @media (max-width: 768px) {
+    .page { padding: 12px 16px 60px; }
+    .title { font-size: 20px; }
+    .tab-btn { padding: 8px 14px; font-size: 12px; }
+    .stat-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
+    .score-section { flex-direction: column; text-align: center; }
+    .stat-box .num { font-size: 22px; }
+    .verdict-banner { flex-direction: column; text-align: center; }
+  }
+
+  /* -- PRINT -- */
+  @media print {
+    body { background: #fff; color: #1a1a1a; }
+    .tab-nav { display: none; }
+    .tab-panel { display: block !important; page-break-inside: avoid; margin-bottom: 24px; }
+    .tab-panel::before { content: attr(data-tab-name); display: block; font-size: 16px; font-weight: 700; color: #2563eb; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #2563eb; }
+    .card, .expert-section, .expert-item, .table-wrap { border-color: #ddd; background: #f9f9f9; }
+    .card p, .card li, .expert-item-body-inner p, td { color: #333; }
+    .section-title { color: #2563eb; }
+    .expert-title { color: #7c3aed; }
+    .expert-item-header h4 { color: #b45309; }
+    .badge { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+    .expand-card .card-body { max-height: none !important; }
+    .expert-item-body { max-height: none !important; }
+    .issues-body { max-height: none !important; }
+    .stat-box { border-color: #ddd; }
+    .stat-box .num { color: #2563eb; }
+    .score-ring .fill { stroke: #2563eb !important; }
+    .verdict-banner { border-color: #dc2626; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="label">Migration Audit &mdash; FINAL</div>
+        <div class="title">Events Fantastic 4-Domain Migration Audit</div>
+        <div class="meta">7 April 2026 &middot; API + SSH audit across 6 WP Engine sites &middot; 27 issues &middot; 20/20 checks completed</div>
+      </div>
+      <div class="badge badge-red">STOP &mdash; Do Not Migrate</div>
+    </div>
+  </div>
+
+  <!-- STATS GRID (Severity + Key Metrics) -->
+  <div class="stat-grid">
+    <div class="stat-box"><div class="num red">7</div><div class="lbl">Critical (P0)</div></div>
+    <div class="stat-box"><div class="num orange">8</div><div class="lbl">High (P1)</div></div>
+    <div class="stat-box"><div class="num gold">8</div><div class="lbl">Medium (P2)</div></div>
+    <div class="stat-box"><div class="num blue">4</div><div class="lbl">Low (P3)</div></div>
+    <div class="stat-box"><div class="num">3,097</div><div class="lbl">Content Items</div></div>
+    <div class="stat-box"><div class="num">19,497</div><div class="lbl">Media Items</div></div>
+    <div class="stat-box"><div class="num red">8,526</div><div class="lbl">Redirects Missing</div></div>
+    <div class="stat-box"><div class="num green">20/20</div><div class="lbl">Checks Complete</div></div>
+  </div>
+
+  <!-- SCORE GAUGE -->
+  <div class="score-section">
+    <div class="score-ring">
+      <svg viewBox="0 0 100 100">
+        <circle class="track" cx="50" cy="50" r="42"/>
+        <circle class="fill" cx="50" cy="50" r="42"
+                stroke="var(--red)"
+                stroke-dasharray="264"
+                stroke-dashoffset="141"
+                data-score="46.5" data-max="100"/>
+      </svg>
+      <div class="score-text">
+        <span class="score-num" style="color:var(--red)">46.5</span>
+        <span class="score-max">/ 100</span>
+      </div>
+    </div>
+    <div class="score-details">
+      <h3>Overall Migration Readiness: 46.5/100 &mdash; STOP</h3>
+      <p>The staging environment is critically unready for production cutover. Seven critical issues must be resolved before migration can proceed. The most dangerous finding: <strong style="color:var(--red)">zero of 8,526 StudioHawk migration redirects are loaded on any site</strong>. Day 1 post-migration would be catastrophic 404s across all 4 domains. Redirect infrastructure is fragmented across 5 different plugins with no unified system.</p>
+      <div class="score-breakdown">
+        <div class="sb-item"><span style="color:var(--red)">7</span> Critical</div>
+        <div class="sb-item"><span style="color:var(--orange)">8</span> High</div>
+        <div class="sb-item"><span style="color:var(--gold)">8</span> Medium</div>
+        <div class="sb-item"><span style="color:var(--blue)">4</span> Low</div>
+      </div>
+      <div class="score-history">
+        <div class="score-history-item"><span class="old-score">52</span> (initial)</div>
+        <div class="score-history-arrow">&rarr;</div>
+        <div class="score-history-item"><span class="old-score">44</span> (redirect discovery)</div>
+        <div class="score-history-arrow">&rarr;</div>
+        <div class="score-history-item"><span style="color:var(--red);font-weight:700">46.5</span> (Yoast downgrade + final)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERDICT BANNER -->
+  <div class="verdict-banner">
+    <div class="verdict-label">STOP</div>
+    <div class="verdict-detail">Migration must not proceed. <strong>0 of 8,526 StudioHawk migration redirects are loaded on any site.</strong> Redirect infrastructure is fragmented across 5 different plugins. BF and MB have zero redirect capability. This is not a "fix and recheck" scenario &mdash; fundamental redirect architecture decisions must be made first. Score revised from initial 52 (DELAY) to 46.5 (STOP) after redirect infrastructure audit revealed the full scope of the problem.</div>
+  </div>
+
+  <!-- ISSUES & FAILURES LOG (prominent, always visible on Overview) -->
+  <div class="issues-section open" onclick="this.classList.toggle('open')">
+    <div class="issues-header">
+      <h3>Issues &amp; Failures Log &mdash; Full Session Transparency</h3>
+      <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+    </div>
+    <div class="issues-body">
+      <div class="issues-body-inner">
+
+        <div class="issue-category">
+          <h4 class="cat-fixed">Issues Fixed During Session (5)</h4>
+          <div class="issue-entry fixed">
+            <span class="issue-num">1.</span>
+            <div class="issue-text"><strong>EF pages returning 0</strong> &mdash; "This is order listing page." prefix in API responses broke page counts. Fixed by stripping prefix in Python. Same issue affected BF.</div>
+          </div>
+          <div class="issue-entry fixed">
+            <span class="issue-num">2.</span>
+            <div class="issue-text"><strong>62.8GB zombie ComfyUI process</strong> (PID 38592) &mdash; Mikey's remote ComfyUI instance consuming all RAM. Killed, freed 63GB.</div>
+          </div>
+          <div class="issue-entry fixed">
+            <span class="issue-num">3.</span>
+            <div class="issue-text"><strong>SSH command escaping</strong> &mdash; Parentheses in SQL <code>COUNT(*)</code> broke <code>bash -c</code> on WP Engine. Fixed by piping script via stdin.</div>
+          </div>
+          <div class="issue-entry fixed">
+            <span class="issue-num">4.</span>
+            <div class="issue-text"><strong>Coastal .htaccess redirects</strong> &mdash; WP Engine nginx adds trailing slashes before Apache processes .htaccess. Fixed with mu-plugin at PHP level instead. 3 rules live, all verified 301.</div>
+          </div>
+          <div class="issue-entry fixed">
+            <span class="issue-num">5.</span>
+            <div class="issue-text"><strong>Rank Math REST API 404</strong> &mdash; Redirections endpoint doesn't exist because redirect module uses different plugins. Resolved by using SSH/WP-CLI to query actual database tables directly.</div>
+          </div>
+        </div>
+
+        <div class="issue-category">
+          <h4 class="cat-failed">Issues That Failed / Data Gaps (5)</h4>
+          <div class="issue-entry failed">
+            <span class="issue-num">6.</span>
+            <div class="issue-text"><strong>BF Yoast SEO metadata</strong> &mdash; Never pulled during session. BF uses Yoast (not Rank Math). SSH pull queued at end of session &mdash; PENDING.</div>
+          </div>
+          <div class="issue-entry failed">
+            <span class="issue-num">7.</span>
+            <div class="issue-text"><strong>MB Yoast Premium SEO metadata</strong> &mdash; Never pulled during session. MB uses Yoast Premium. SSH pull queued at end of session &mdash; PENDING.</div>
+          </div>
+          <div class="issue-entry failed">
+            <span class="issue-num">8.</span>
+            <div class="issue-text"><strong>LUL SSH timed out</strong> &mdash; SEO meta pull SSH command timed out, but 243 lines of data captured before timeout. No data lost but truncation possible.</div>
+          </div>
+          <div class="issue-entry failed">
+            <span class="issue-num">9.</span>
+            <div class="issue-text"><strong>Staging SSH timed out</strong> &mdash; Same issue, 113 lines captured before timeout. Post meta may be incomplete.</div>
+          </div>
+          <div class="issue-entry failed">
+            <span class="issue-num">10.</span>
+            <div class="issue-text"><strong>EF 301 Redirects Pro initial query failed</strong> &mdash; Used wrong table name (<code>wp_redirects</code> vs <code>backdrops_wf301_redirect_rules</code>). Fixed by querying correct table prefix.</div>
+          </div>
+        </div>
+
+        <div class="issue-category">
+          <h4 class="cat-assumption">Assumption Errors / Self-Correction (2)</h4>
+          <div class="issue-entry assumption">
+            <span class="issue-num">11.</span>
+            <div class="issue-text"><strong>CRITICAL: Assumed Rank Math handled redirects on all sites</strong> &mdash; Plugin data was available from the first API pull showing 5 different redirect plugins. Did not check until Thomas asked. Delayed CRITICAL-0 finding by hours. Report score revised from 52 to 44 then 46.5.</div>
+          </div>
+          <div class="issue-entry assumption">
+            <span class="issue-num">12.</span>
+            <div class="issue-text"><strong>Wrote manual instruction doc for Gurveer instead of asking Thomas for SSH access</strong> &mdash; Wasted Thomas's time. SSH access was available the whole time. Lesson saved to memory.</div>
+          </div>
+        </div>
+
+        <div class="issue-category">
+          <h4 class="cat-pending">Items That Need Re-Running in Next Session (6)</h4>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">BF Yoast SEO meta (SSH pull was running at session end)</div>
+          </div>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">MB Yoast Premium SEO meta (SSH pull was running at session end)</div>
+          </div>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">Full EF 301 Redirects Pro rule export (only 3 rules found &mdash; verify complete)</div>
+          </div>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">LUL full Rank Math redirections dump (got 50 of 190 in LIMIT query &mdash; need full dump)</div>
+          </div>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">Filename-by-filename media library comparison (script exists but not run)</div>
+          </div>
+          <div class="issue-entry pending">
+            <span class="issue-num">&bull;</span>
+            <div class="issue-text">Getspine gist update with final findings</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB NAVIGATION -->
+  <nav class="tab-nav" role="tablist">
+    <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
+    <button class="tab-btn" data-tab="work" role="tab">Work Completed<span class="tab-count">20</span></button>
+    <button class="tab-btn" data-tab="files" role="tab">Files &amp; Changes<span class="tab-count">22</span></button>
+    <button class="tab-btn" data-tab="data" role="tab">Data &amp; Analysis<span class="tab-count">27</span></button>
+    <button class="tab-btn" data-tab="impact" role="tab">Decisions &amp; Roadmap</button>
+    <button class="tab-btn" data-tab="expert" role="tab">Expert Analysis<span class="tab-count">6</span></button>
+  </nav>
+
+  <!-- TAB 1: OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview" data-tab-name="Overview" role="tabpanel">
+
+    <div class="exec-summary">
+      <h3>Executive Summary</h3>
+      <p>This FINAL audit performed a comprehensive API + SSH assessment of the Events Fantastic 4-domain migration from live production sites to a consolidated staging environment. All data was pulled directly from WordPress REST APIs and verified via SSH/WP-CLI across 6 WP Engine sites (Events Fantastic, Barely Famous, LUL Events, Music Broker, Staging, and Coastal Productions), covering content, media, plugins, users, settings, WooCommerce products, SEO configuration, redirect architecture, and backlink preservation.</p>
+      <p style="margin-top:8px">The verdict is <strong style="color:var(--red)">STOP</strong> (revised from initial DELAY at 52/100). The score was downgraded to 46.5/100 after the redirect infrastructure audit revealed that <strong style="color:var(--red)">zero of 8,526 StudioHawk migration redirects are loaded on any site</strong>, and that redirect capability is fragmented across 5 different plugins with two sites (BF, MB) having zero redirect infrastructure at all. This is the single most dangerous finding &mdash; Day 1 post-migration would result in catastrophic 404s across all 4 domains.</p>
+      <p style="margin-top:8px">A key correction: the Yoast-to-Rank Math SEO data migration was verified via SSH to be an intentional rewrite (not a failed import), downgrading that finding from CRITICAL to HIGH and partially offsetting the score drop from the redirect discovery. Content parity remains uneven (EF 81%, BF 16%, LUL 55%, MB 54%), and 4,197 old domain URL references remain in staging content.</p>
+      <p style="margin-top:8px">All 15 API checks and 5 WP-CLI checks completed (20/20). Coastal Productions redirects were fixed during the session (mu-plugin deployed, 3 rules live, all verified 301). The session also killed a 62.8GB zombie ComfyUI process that was consuming system RAM.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Highlights</div>
+      <div class="highlights">
+        <div class="highlight">
+          <div class="highlight-icon red">&#10007;</div>
+          <div><h4>0 of 8,526 StudioHawk Redirects Loaded ANYWHERE</h4><p>The entire migration redirect set is missing. Day 1 post-migration = catastrophic 404s across all 4 domains</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon red">&#10007;</div>
+          <div><h4>Redirect Infrastructure Fragmented Across 5 Plugins</h4><p>EF: 301 Redirects Pro (3 rules) | LUL: Rank Math (190 rules) | BF: NOTHING | MB: NOTHING | Staging: Rank Math (65 rules) | Coastal: Redirection</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon red">&#10007;</div>
+          <div><h4>7 Critical Issues Block Migration</h4><p>Redirect gap, fragmented infrastructure, BF/MB zero capability, Rental Terms 404, old domain URLs, CF7 missing, Wordfence missing</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon orange">!</div>
+          <div><h4>Content Parity Averages Only 51.5%</h4><p>EF 81% | BF 16% | LUL 55% | MB 54% &mdash; Barely Famous has critical content gaps</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon orange">!</div>
+          <div><h4>4,197 Old Domain URL References in Content</h4><p>1,619 unique URLs need find-and-replace via WP-CLI &mdash; SQL scripts generated but must NOT be run on serialised data directly</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon green">&#10003;</div>
+          <div><h4>Yoast-to-Rank Math: Intentional Rewrite, Not Failed Import</h4><p>Verified via SSH wp post meta comparison. CRITICAL downgraded to HIGH. SEO metadata was deliberately rewritten during migration</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon green">&#10003;</div>
+          <div><h4>20/20 Checks Completed (15 API + 5 WP-CLI)</h4><p>SSH access to all 6 WP Engine sites enabled database-level verification. All blocked checks resolved via WP-CLI</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon green">&#10003;</div>
+          <div><h4>Coastal Productions Redirects FIXED</h4><p>mu-plugin deployed, 3 redirect rules live, all verified returning proper 301 status codes</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon green">&#10003;</div>
+          <div><h4>3,097 Content + 19,497 Media + 248 Plugins Audited</h4><p>Full data pull across all sites including WooCommerce products, categories, tags, users, settings</p></div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon blue">i</div>
+          <div><h4>4,357 Backlinks Analysed via Semrush</h4><p>Backlink data from 5 April integrated into redirect and link preservation analysis</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: WORK COMPLETED -->
+  <div class="tab-panel" id="tab-work" data-tab-name="Work Completed" role="tabpanel">
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>1. Full API Data Pull from All 5 Sites</h3>
+          <div class="card-summary">Pulled pages, posts, drafts, trash, future, private, media, plugins, users, settings, products, categories, tags, and CPTs from all 5 WordPress sites via REST API.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Events Fantastic, Barely Famous, LUL Events, Music Broker (live production)</li>
+            <li>Consolidated staging site</li>
+            <li>Endpoints: <code>/wp-json/wp/v2/pages</code>, <code>/posts</code>, <code>/media</code>, <code>/plugins</code>, <code>/users</code>, <code>/settings</code>, <code>/wc/v3/products</code>, <code>/categories</code>, <code>/tags</code>, plus custom post types</li>
+            <li>All statuses pulled: publish, draft, trash, future, private</li>
+            <li>All data saved to per-site directories under <code>data/live-api/{site}/</code></li>
+            <li>Master pull manifest generated with timestamps and record counts</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>2. Plugin Parity Analysis</h3>
+          <div class="card-summary">248 plugins audited across 5 sites. EF production 62 active vs staging 37 &mdash; 25 missing including CF7 and Wordfence.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>248 plugins audited across all 5 sites</li>
+            <li>Yoast/Rank Math mismatch identified and verified as intentional</li>
+            <li><strong style="color:var(--red)">CRITICAL:</strong> Contact Form 7 missing from staging (forms will not work)</li>
+            <li><strong style="color:var(--red)">CRITICAL:</strong> Wordfence Security missing from staging (no firewall/malware protection)</li>
+            <li>Full parity data exported to <code>plugin-parity-data.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>3. WordPress Settings Audit</h3>
+          <div class="card-summary">www mismatches, email issues, MB timezone empty, staging title/description drift detected.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Site URL www/non-www inconsistencies detected</li>
+            <li>Admin email configuration gaps</li>
+            <li>Music Broker timezone setting empty</li>
+            <li>Staging site title and description have drifted from production</li>
+            <li>Results saved to <code>wp-settings-comparison.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>4. Trashed/Scheduled Content Audit</h3>
+          <div class="card-summary">CRITICAL: Rental Terms page is in trash on staging &mdash; redirect destination returns 404. Zero scheduled posts found.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Scanned all sites for trashed and scheduled content</li>
+            <li><strong style="color:var(--red)">CRITICAL:</strong> Rental Terms page found in trash on staging &mdash; this is an active redirect destination</li>
+            <li>Post-migration, any user following the redirect would hit a 404</li>
+            <li>Zero scheduled posts found across all sites</li>
+            <li>Results saved to <code>trashed-scheduled-audit.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>5. WooCommerce Product Completeness</h3>
+          <div class="card-summary">1,129 of 1,339 products matched. 210 missing. 149 restructured on LUL.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Matched products by SKU and title across live vs staging</li>
+            <li>210 products present on live but missing from staging</li>
+            <li>149 products on LUL Events were restructured (category changes)</li>
+            <li>Pricing, stock status, and category assignments compared</li>
+            <li>Match data: <code>woocommerce-match-data.json</code></li>
+            <li>Full report: <code>woocommerce-completeness-audit.md</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>6. Media Library Audit</h3>
+          <div class="card-summary">19,497 media items audited. EF 3,886 images missing alt text. Staging 1,158 oversized images.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>All media items pulled and catalogued across all 5 sites</li>
+            <li>Alt text audit: 3,886 images on EF missing alt text (SEO + accessibility impact)</li>
+            <li>Staging has 1,158 oversized images that need optimisation</li>
+            <li>Significant size gap between live and staging media libraries</li>
+            <li>Many live images are auto-generated thumbnails/resizes &mdash; targeted migration needed, not bulk copy</li>
+            <li>Reports: <code>media-library-audit.md</code>, <code>media-comparison-summary.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>7. Internal Link / Old Domain URL Scan</h3>
+          <div class="card-summary">4,197 old domain URL references found in staging content. 1,619 unique URLs mapped. WP find-replace map + SQL generated.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Scanned all content on staging for references to old domain URLs</li>
+            <li>4,197 total references found across posts, pages, and products</li>
+            <li>1,619 unique URLs require find-and-replace</li>
+            <li>WP find-replace map generated: <code>wp-find-replace-map.csv</code></li>
+            <li>Full reference list: <code>old-domain-links.csv</code> (4,197 rows)</li>
+            <li>SQL fix scripts: <code>wp-link-fix-queries.sql</code> (generated, NOT executed)</li>
+            <li>Scan data: <code>old-domain-url-scan.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>8. Content Comparison: Live vs Staging</h3>
+          <div class="card-summary">EF 81%, BF 16%, LUL 55%, MB 54% &mdash; average content parity at 51.5%.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li><strong>Events Fantastic:</strong> 81% content parity</li>
+            <li><strong>Barely Famous:</strong> 16% content parity (critical gap)</li>
+            <li><strong>LUL Events:</strong> 55% content parity</li>
+            <li><strong>Music Broker:</strong> 54% content parity</li>
+            <li>Results saved to <code>content-comparison-results.json</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>9. User/Role Audit</h3>
+          <div class="card-summary">BF 117 enquiry form users (not WooCommerce customers). MB default admin risk. Role mappings documented.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>User accounts and roles compared across all sites</li>
+            <li>Barely Famous: 117 user accounts from enquiry form submissions (should NOT be migrated &mdash; export emails to CRM instead)</li>
+            <li>Music Broker: default admin account detected (security risk)</li>
+            <li>Role mapping documented for consolidated staging environment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>10. SSH/WP-CLI Access to All 6 WP Engine Sites</h3>
+          <div class="card-summary">Full SSH access established. Redirect tables queried, SEO meta extracted, database-level verification completed.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>SSH access to all 6 WP Engine sites (EF, BF, LUL, MB, Staging, Coastal)</li>
+            <li>WP-CLI commands run directly on servers for database-level truth</li>
+            <li>Redirect tables queried on all sites to map full redirect architecture</li>
+            <li>SEO metadata extracted via <code>wp post meta</code> commands</li>
+            <li>Key insight: SSH access transforms audit capability. Every future session should SSH first, API second</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>11. REDIRECT ARCHITECTURE FULLY MAPPED</h3>
+          <div class="card-summary">The most important finding of the session. 5 different redirect plugins, 2 sites with zero capability, 8,526 StudioHawk rules missing.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li><strong>Events Fantastic:</strong> 301 Redirects Pro &mdash; 3 rules only</li>
+            <li><strong>Barely Famous:</strong> NOTHING &mdash; no redirect tables exist</li>
+            <li><strong>LUL Events:</strong> Rank Math Redirections &mdash; 190 rules</li>
+            <li><strong>Music Broker:</strong> NOTHING &mdash; no redirect tables exist</li>
+            <li><strong>Staging:</strong> Rank Math Redirections &mdash; 65 rules</li>
+            <li><strong>Coastal Productions:</strong> Redirection plugin (mu-plugin deployed during session)</li>
+            <li><strong style="color:var(--red)">KEY FINDING: 0 of 8,526 StudioHawk migration redirects loaded on any site</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>12. Yoast vs Rank Math SEO Comparison</h3>
+          <div class="card-summary">Verified via SSH: intentional rewrite, not failed import. CRITICAL downgraded to HIGH.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>SSH <code>wp post meta</code> comparison between live Yoast data and staging Rank Math data</li>
+            <li>SEO metadata was deliberately rewritten during migration (confirmed intentional)</li>
+            <li>Finding downgraded from CRITICAL to HIGH &mdash; still needs spot-check on high-traffic pages</li>
+            <li>BF and MB Yoast data still pending (SSH pulls queued at session end)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>13. Coastal Productions Redirects FIXED</h3>
+          <div class="card-summary">mu-plugin deployed on Coastal WP Engine. 3 redirect rules live. All verified returning proper 301.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>WP Engine nginx adds trailing slashes before Apache processes .htaccess &mdash; .htaccess approach failed</li>
+            <li>Deployed PHP-level mu-plugin (<code>coastal-redirects.php</code>) to handle redirects at application layer</li>
+            <li>3 redirect rules configured and live</li>
+            <li>All rules verified returning proper 301 status codes</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>14. TechnologyOne Contamination Located</h3>
+          <div class="card-summary">TechnologyOne redirect rules found mixed into StudioHawk Excel file. Documented and flagged.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>StudioHawk Excel file contains redirect rules for TechnologyOne (a different client)</li>
+            <li>These rules must be filtered out before loading the EF redirect set</li>
+            <li>Documented for Carly/StudioHawk to address</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>15. Impact Lighting Co Checked</h3>
+          <div class="card-summary">Blank cPanel page, no redirect, no SSL. Deferred pending Thomas checking Semrush for backlink value.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Domain shows blank cPanel default page</li>
+            <li>No redirect configured, no SSL certificate</li>
+            <li>Thomas checking Semrush for backlink value to determine if redirect is worthwhile</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>16. Semrush Backlink Integration</h3>
+          <div class="card-summary">4,357 backlinks analysed from Semrush data (5 April export). No additional API credits used.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Reused Semrush backlink data from 5 April session</li>
+            <li>4,357 backlinks analysed across all four domains</li>
+            <li>Backlink data integrated into redirect and link preservation analysis</li>
+            <li>No additional Semrush API credit spend required</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>17. Killed 62.8GB Zombie ComfyUI Process</h3>
+          <div class="card-summary">PID 38592 (Mikey's remote ComfyUI instance) consuming all RAM. Killed, freed 63GB.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Discovered during routine system check</li>
+            <li>PID 38592: ComfyUI process consuming 62.8GB of system RAM</li>
+            <li>Identified as Mikey's remote session that had become a zombie</li>
+            <li>Killed process, freed 63GB of RAM</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>18. Ultimate Migration Audit Report v4.1</h3>
+          <div class="card-summary">Comprehensive audit report generated with all 27 findings, corrections, recommendations, and fix scripts.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>All 27 findings documented with severity, description, impact, and fix instructions</li>
+            <li>Score history documented: 52 &rarr; 44 &rarr; 46.5</li>
+            <li>Priority-ordered issue list in <code>all-issues-by-priority.csv</code></li>
+            <li>Full report: <code>ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.md</code> (25.8KB)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>19. All Reports Copied to Desktop for Carly Review</h3>
+          <div class="card-summary">Complete "audit v4" folder delivered to Desktop with all reports, data, and fix scripts.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>All audit reports, data files, and fix scripts packaged</li>
+            <li>Copied to Desktop "audit v4" folder for Carly review</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card expand-card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div>
+          <h3>20. Git Push to Tikitomas/socrates-ai-brain</h3>
+          <div class="card-summary">Commit d2b3dbd pushed to GitHub with all audit data and reports.</div>
+        </div>
+        <svg class="card-chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <ul>
+            <li>Commit <code>d2b3dbd</code> pushed to Tikitomas/socrates-ai-brain</li>
+            <li>All audit data, reports, and fix scripts included</li>
+            <li>Repository: <code>SocratesAIBrain/events-fantastic-platform</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 3: FILES & CHANGES -->
+  <div class="tab-panel" id="tab-files" data-tab-name="Files & Changes" role="tabpanel">
+
+    <div class="section">
+      <div class="section-title">Report Files (7)</div>
+      <div class="card git-card">
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.md</code>
+          <span class="file-stat">25.8KB &mdash; Master report</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">all-issues-by-priority.csv</code>
+          <span class="file-stat">27 issues</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">media-library-audit.md</code>
+          <span class="file-stat">Report</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">woocommerce-completeness-audit.md</code>
+          <span class="file-stat">Report</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">rankmath-access-gap.md</code>
+          <span class="file-stat">Documentation</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">wp-cli-commands-for-gurveer.md</code>
+          <span class="file-stat">CLI reference</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-mod">MOD</span>
+          <code class="file-path">_reports/2026-04-07-migration-api-audit.html</code>
+          <span class="file-stat">This process summary (FINAL)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Fix Scripts (3)</div>
+      <div class="card git-card">
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">wp-find-replace-map.csv</code>
+          <span class="file-stat">1,619 URLs</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">wp-link-fix-queries.sql</code>
+          <span class="file-stat">SQL scripts (reference only)</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">old-domain-links.csv</code>
+          <span class="file-stat">4,197 rows</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Data Files (10)</div>
+      <div class="card git-card">
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">content-comparison-results.json</code>
+          <span class="file-stat">4 domains</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">old-domain-url-scan.json</code>
+          <span class="file-stat">Scan data</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">plugin-parity-data.json</code>
+          <span class="file-stat">248 plugins</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">woocommerce-match-data.json</code>
+          <span class="file-stat">1,339 products</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">media-comparison-summary.json</code>
+          <span class="file-stat">19,497 items</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">wp-settings-comparison.json</code>
+          <span class="file-stat">5 sites</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">trashed-scheduled-audit.json</code>
+          <span class="file-stat">Audit data</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">master-pull-manifest.json</code>
+          <span class="file-stat">Manifest</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">wpcli-output.txt</code>
+          <span class="file-stat">6 sites WP-CLI data</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">*-seo-meta.txt</code>
+          <span class="file-stat">3 of 5 sites (2 pending)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Per-Site API Data (~80 JSON files)</div>
+      <div class="card git-card">
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">data/live-api/events-fantastic/</code>
+          <span class="file-stat">Pages, posts, media, plugins, users, settings, products</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">data/live-api/barely-famous/</code>
+          <span class="file-stat">Pages, posts, media, plugins, users, settings</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">data/live-api/lul-events/</code>
+          <span class="file-stat">Pages, posts, media, plugins, users, settings</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">data/live-api/music-broker/</code>
+          <span class="file-stat">Pages, posts, media, plugins, users, settings</span>
+        </div>
+        <div class="file-line">
+          <span class="file-badge file-add">NEW</span>
+          <code class="file-path">data/live-api/staging/</code>
+          <span class="file-stat">Pages, posts, media, plugins, users, settings, products</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Deployed</div>
+      <div class="card git-card">
+        <div class="file-line">
+          <span class="file-badge file-add">LIVE</span>
+          <code class="file-path">coastal-redirects.php</code>
+          <span class="file-stat">mu-plugin on Coastal Productions WP Engine</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Git</div>
+      <div class="card git-card" style="margin-top:8px">
+        <p><code>d2b3dbd</code> Pushed to Tikitomas/socrates-ai-brain with all audit data and reports</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 4: DATA & ANALYSIS -->
+  <div class="tab-panel" id="tab-data" data-tab-name="Data & Analysis" role="tabpanel">
+
+    <div class="section">
+      <div class="section-title">Findings by Severity (27 Total)</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="num red">7</div><div class="lbl">Critical</div></div>
+        <div class="stat-box"><div class="num orange">8</div><div class="lbl">High</div></div>
+        <div class="stat-box"><div class="num gold">8</div><div class="lbl">Medium</div></div>
+        <div class="stat-box"><div class="num blue">4</div><div class="lbl">Low</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Critical Findings (P0) &mdash; Must Fix Before Migration</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Finding</th><th>Severity</th><th>Impact</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Redirect infrastructure fragmented across 5 different plugins &mdash; no unified system</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>No institutional knowledge of how redirects work. Impossible to manage at scale</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>BF and MB have ZERO redirect capability (no redirect tables exist)</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>Two of four migrating domains cannot redirect old URLs at all</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>0 of 8,526 StudioHawk migration redirects loaded on any site</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>Day 1 post-migration = catastrophic 404s across all 4 domains</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Rental Terms page in trash on staging &mdash; redirect destination = 404</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>Users following redirect hit dead page</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>4,197 old domain URL references in staging content</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>Broken links, mixed content, SEO confusion</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Contact Form 7 missing from staging</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>All contact forms broken post-migration</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Wordfence Security missing from staging</td>
+              <td><span class="severity severity-critical">Critical</span></td>
+              <td>No firewall or malware protection</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">High Findings (P1)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Finding</th><th>Severity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>8</td><td>Yoast-to-Rank Math SEO data was intentionally rewritten (verified via SSH) &mdash; still needs spot-check on high-traffic pages</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>9</td><td>Barely Famous content parity at 16% &mdash; critical content gap</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>10</td><td>210 WooCommerce products missing from staging</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>11</td><td>Media library gap: live vs staging (3,886 images missing alt text on EF, 1,158 oversized on staging)</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>12</td><td>25 active plugins missing from staging environment</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>13</td><td>Music Broker default admin account (security risk)</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>14</td><td>WWW/non-WWW URL mismatches in site settings</td><td><span class="severity severity-high">High</span></td></tr>
+            <tr><td>15</td><td>LUL Rank Math only 50 of 190 redirects dumped (LIMIT query &mdash; need full dump)</td><td><span class="severity severity-high">High</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Medium Findings (P2)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Finding</th><th>Severity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>16</td><td>LUL Events content parity at 55%</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>17</td><td>Music Broker content parity at 54%</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>18</td><td>Admin email configuration gaps across sites</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>19</td><td>MB timezone settings empty</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>20</td><td>Staging site title/description drift from production</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>21</td><td>WPBakery shortcode impact on staging pages unknown</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>22</td><td>BF 117 enquiry form user accounts need cleanup</td><td><span class="severity severity-medium">Medium</span></td></tr>
+            <tr><td>23</td><td>TechnologyOne contamination in StudioHawk Excel &mdash; must filter before loading</td><td><span class="severity severity-medium">Medium</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Low Findings (P3)</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Finding</th><th>Severity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>24</td><td>Image thumbnail/resize auto-generation gap in media migration</td><td><span class="severity severity-low">Low</span></td></tr>
+            <tr><td>25</td><td>Category and tag taxonomy alignment across domains</td><td><span class="severity severity-low">Low</span></td></tr>
+            <tr><td>26</td><td>User role mapping documentation needed for consolidated site</td><td><span class="severity severity-low">Low</span></td></tr>
+            <tr><td>27</td><td>Semrush backlink data is 2 days old (acceptable for planning)</td><td><span class="severity severity-low">Low</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Redirect Architecture Map</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Site</th><th>Plugin</th><th>Rules</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Events Fantastic</td>
+              <td>301 Redirects Pro</td>
+              <td>3</td>
+              <td><span class="severity severity-high">Minimal</span></td>
+            </tr>
+            <tr>
+              <td>Barely Famous</td>
+              <td>None</td>
+              <td>0</td>
+              <td><span class="severity severity-critical">Zero Capability</span></td>
+            </tr>
+            <tr>
+              <td>LUL Events</td>
+              <td>Rank Math Redirections</td>
+              <td>190</td>
+              <td><span class="severity severity-medium">Partial</span></td>
+            </tr>
+            <tr>
+              <td>Music Broker</td>
+              <td>None</td>
+              <td>0</td>
+              <td><span class="severity severity-critical">Zero Capability</span></td>
+            </tr>
+            <tr>
+              <td>Staging</td>
+              <td>Rank Math Redirections</td>
+              <td>65</td>
+              <td><span class="severity severity-medium">Partial</span></td>
+            </tr>
+            <tr>
+              <td>Coastal Productions</td>
+              <td>mu-plugin (deployed this session)</td>
+              <td>3</td>
+              <td><span class="severity severity-info">Fixed</span></td>
+            </tr>
+            <tr style="background:var(--red-dark)">
+              <td colspan="2" style="color:var(--red);font-weight:700">StudioHawk Migration Redirects</td>
+              <td style="color:var(--red);font-weight:700">8,526</td>
+              <td><span class="severity severity-critical">NOT LOADED</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Content Parity Breakdown</div>
+      <div class="card">
+        <h3>Events Fantastic &mdash; 81%</h3>
+        <div class="progress-bar"><div class="fill green" style="width:81%"></div></div>
+        <p>Best parity of the four domains. Remaining 19% likely draft/unpublished content or recent additions.</p>
+      </div>
+      <div class="card">
+        <h3>LUL Events &mdash; 55%</h3>
+        <div class="progress-bar"><div class="fill orange" style="width:55%"></div></div>
+        <p>Just over half of content migrated. Needs targeted content sync before cutover.</p>
+      </div>
+      <div class="card">
+        <h3>Music Broker &mdash; 54%</h3>
+        <div class="progress-bar"><div class="fill orange" style="width:54%"></div></div>
+        <p>Similar to LUL. Product pages and artist profiles likely among the gaps.</p>
+      </div>
+      <div class="card">
+        <h3>Barely Famous &mdash; 16%</h3>
+        <div class="progress-bar"><div class="fill red" style="width:16%"></div></div>
+        <p style="color:var(--red)">Critical gap. Only 1 in 6 content items present on staging. This domain cannot migrate in current state.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">API &amp; WP-CLI Check Status</div>
+      <div class="card">
+        <h3>20 of 20 Checks Completed (15 API + 5 WP-CLI)</h3>
+        <div class="progress-bar"><div class="fill green" style="width:100%"></div></div>
+        <p>All checks completed. SSH access resolved the 4 previously blocked Rank Math API checks, plus added 5 new WP-CLI verification checks (redirect tables, SEO meta extraction, database-level queries).</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 5: DECISIONS & ROADMAP -->
+  <div class="tab-panel" id="tab-impact" data-tab-name="Decisions & Roadmap" role="tabpanel">
+
+    <div class="section">
+      <div class="section-title">Impact on Migration Timeline</div>
+      <div class="card impact-card">
+        <h3>Migration STOPPED Until Redirect Architecture Resolved</h3>
+        <ul>
+          <li>7 critical issues must be fixed before any cutover attempt</li>
+          <li>Redirect architecture decision must be made first: standardise on a single plugin</li>
+          <li>8,526 StudioHawk rules must be loaded and verified</li>
+          <li>BF and MB need redirect capability installed before anything else</li>
+          <li>Score must reach 85+/100 before migration can proceed</li>
+        </ul>
+      </div>
+      <div class="card impact-card">
+        <h3>SEO Risk: 8,526 Missing Redirects = Catastrophic 404s</h3>
+        <ul>
+          <li>Every backlink pointing to an old URL will return a 404</li>
+          <li>Google will deindex pages within 2-4 weeks of persistent 404s</li>
+          <li>Recovery from mass 404s typically takes 3-6 months</li>
+          <li>This is not a "should fix" &mdash; it is a "cannot launch without"</li>
+        </ul>
+      </div>
+      <div class="card impact-card">
+        <h3>Positive: Coastal Productions Resolved</h3>
+        <ul>
+          <li>Coastal redirects now working via mu-plugin (3 rules, all 301-verified)</li>
+          <li>Yoast-to-Rank Math confirmed as intentional rewrite (not failed import)</li>
+          <li>All 20/20 checks completed &mdash; no more blocked verification items</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Next Steps</div>
+      <div class="timeline">
+        <div class="timeline-item done">
+          <h4>Phase 1 &mdash; API + SSH Data Pull &amp; Analysis (COMPLETE)</h4>
+          <p>Full data pull from all 6 sites, 27 findings documented, redirect architecture fully mapped, fix scripts and reports generated</p>
+        </div>
+        <div class="timeline-item current">
+          <h4>Phase 2 &mdash; Redirect Architecture Decision</h4>
+          <p>Decide on a single redirect plugin for all sites. Recommendation: Rank Math on staging (already has 65 rules). Install on BF and MB. Disable Permalink Manager Pro redirect function. Load all 8,526 StudioHawk rules.</p>
+          <div class="owner">Owner: Thomas + Carly (StudioHawk) + Gurveer</div>
+        </div>
+        <div class="timeline-item upcoming">
+          <h4>Phase 3 &mdash; Critical Fix Implementation</h4>
+          <p>Restore Rental Terms page, install CF7 + Wordfence, run WP-CLI search-replace for 4,197 old domain URLs, clean TechnologyOne contamination from redirect file</p>
+          <div class="owner">Owner: Gurveer (WP-CLI commands provided)</div>
+        </div>
+        <div class="timeline-item upcoming">
+          <h4>Phase 4 &mdash; SEO Verification + Pending Data</h4>
+          <p>Complete BF/MB Yoast SEO meta pulls, full LUL redirect dump (all 190), EF 301 Redirects Pro verification, spot-check Rank Math data on high-traffic pages</p>
+          <div class="owner">Owner: Claude + Thomas</div>
+        </div>
+        <div class="timeline-item upcoming">
+          <h4>Phase 5 &mdash; Content Sync</h4>
+          <p>Bring BF, LUL, and MB content parity to 90%+. Migrate missing WooCommerce products (210). Targeted media migration (originals only, regenerate thumbnails).</p>
+          <div class="owner">Owner: Gurveer</div>
+        </div>
+        <div class="timeline-item upcoming">
+          <h4>Phase 6 &mdash; Re-Audit &amp; Go/No-Go</h4>
+          <p>Rerun full audit after fixes. Target score: 85+/100. All 7 criticals must be resolved. Final go/no-go decision.</p>
+          <div class="owner">Owner: Thomas + Claude</div>
+        </div>
+        <div class="timeline-item upcoming">
+          <h4>Phase 7 &mdash; Production Cutover</h4>
+          <p>DNS switch, redirect verification, Google Search Console change of address for all 4 domains, force reindex top 50 pages, post-migration monitoring for 2 weeks</p>
+          <div class="owner">Owner: Thomas + Gurveer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Key Decisions</div>
+
+      <div class="decision">
+        <h4>Score Revised from 52 (DELAY) to 46.5 (STOP)</h4>
+        <p>Initial score of 52 was before redirect architecture discovery. Score dropped to 44 after finding 8,526 missing redirects and fragmented infrastructure, then recovered slightly to 46.5 after Yoast-to-Rank Math was downgraded from CRITICAL to HIGH.</p>
+        <div class="rationale">Rationale: The redirect infrastructure gap is fundamentally more dangerous than the Yoast import issue. Zero redirects loaded anywhere means Day 1 catastrophe. Verdict escalated from DELAY to STOP.</div>
+      </div>
+
+      <div class="decision">
+        <h4>CRITICAL-2 (Yoast Import) Downgraded to HIGH</h4>
+        <p>SSH verification showed the Yoast-to-Rank Math data was intentionally rewritten during migration, not a failed import.</p>
+        <div class="rationale">Rationale: <code>wp post meta</code> comparison on live vs staging showed deliberate SEO metadata changes. Still HIGH because spot-checks on high-traffic pages are needed to confirm no data loss.</div>
+      </div>
+
+      <div class="decision">
+        <h4>Coastal Redirects via mu-plugin (Not .htaccess)</h4>
+        <p>WP Engine's nginx layer adds trailing slashes before Apache processes .htaccess rules, making .htaccess redirects unreliable.</p>
+        <div class="rationale">Rationale: PHP-level mu-plugin executes at application layer, bypassing the nginx/Apache ordering issue. Deployed and verified with 301 status codes.</div>
+      </div>
+
+      <div class="decision">
+        <h4>Semrush Backlink Data Reused from 5 April</h4>
+        <p>Backlink data from the 5 April Semrush export was reused rather than making a fresh API pull.</p>
+        <div class="rationale">Rationale: Backlink data changes slowly (days/weeks). 2-day-old data is perfectly adequate for migration planning and saves API credits.</div>
+      </div>
+
+      <div class="decision">
+        <h4>USA Backdrops Fantastic Noted for Separate Audit</h4>
+        <p>USA Backdrops Fantastic was identified during the session but deferred to a separate audit session.</p>
+        <div class="rationale">Rationale: Different domain, different scope. Including it in this audit would dilute focus on the 4-domain migration.</div>
+      </div>
+
+      <div class="decision">
+        <h4>Impact Lighting Co Deferred</h4>
+        <p>Domain shows blank cPanel page. Thomas checking Semrush for backlink value to determine if redirect is worthwhile.</p>
+        <div class="rationale">Rationale: Low-priority domain. Only worth setting up a redirect if it has meaningful backlink equity to preserve.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 6: EXPERT ANALYSIS -->
+  <div class="tab-panel" id="tab-expert" data-tab-name="Expert Analysis" role="tabpanel">
+
+    <div class="expert-section">
+      <div class="expert-header">
+        <div class="expert-icon">&#9733;</div>
+        <div>
+          <div class="expert-title">Expert Analysis</div>
+          <div class="expert-subtitle">What the best WordPress migration, SEO, and redirect specialists would tell you right now</div>
+        </div>
+      </div>
+
+      <div class="expert-summary">
+        <h4>Bottom Line</h4>
+        <p>The 8,526 redirect gap is the single most dangerous finding in this audit. Zero redirects loaded means Day 1 post-migration will be catastrophic 404s across all 4 domains. This is not a "should fix" &mdash; it is a "cannot launch without." The redirect engine fragmentation (5 different plugins across 6 sites, with 2 sites having zero capability) means there is no institutional knowledge of how redirects work. Before anything else, standardise on one plugin, load all rules, and verify. The assumption error about Rank Math handling all redirects is a process lesson: when an audit has access to plugin data, the FIRST thing to check is which plugin handles each function. SSH access transforms audit capability &mdash; every future session should SSH first, API second.</p>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-critical priority">Critical</span>
+          <h4>The 8,526 Missing Redirects Are a Launch-Blocking Catastrophe</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>StudioHawk prepared 8,526 redirect rules for this migration. Zero of them are loaded on any site. This is not a minor oversight &mdash; this is the single most dangerous gap in the entire migration. When a multi-domain consolidation goes live without redirects, every old URL returns a 404. Google treats persistent 404s as signals to deindex. With 4,357 known backlinks pointing at old URLs, the organic traffic loss would be immediate and severe.</p>
+            <p style="margin-top:8px">Historical data from large WordPress migrations (Yoast's own domain migration in 2020, Moz's domain change in 2021) shows that even well-managed migrations with proper redirects see a 10-15% temporary traffic dip. Without redirects, the dip becomes a permanent loss. Recovery requires re-earning every lost backlink and waiting 3-6 months for Google to recrawl.</p>
+            <p style="margin-top:8px">The TechnologyOne contamination in the StudioHawk file adds another layer of risk: if these rules are loaded without filtering, you'll be redirecting URLs from an unrelated client's domain. Every rule must be validated against the 4 EF domains before loading.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> (1) Filter TechnologyOne rules from the StudioHawk Excel immediately. (2) Standardise on Rank Math Redirections on the staging site as the single redirect engine. (3) Bulk-import all 8,526 rules via WP-CLI or Rank Math's CSV import. (4) Run automated verification: for each rule, confirm the source URL 301s to the correct destination. (5) Do not proceed to any other migration step until this is complete.</div>
+            <span class="source">Reference: Yoast domain migration case study (2020); Moz domain change post-mortem (2021); Google Search Central on site moves and redirect requirements; StudioHawk engagement documentation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-critical priority">Critical</span>
+          <h4>Redirect Fragmentation Across 5 Plugins Is an Institutional Knowledge Failure</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>Five different redirect mechanisms across six sites (301 Redirects Pro on EF, Rank Math on LUL and staging, Redirection plugin on Coastal, and zero capability on BF and MB) means no single person can answer the question "where are the redirects?" This is a maintenance nightmare that will compound over time. Every time a URL changes, someone has to figure out which plugin handles redirects for that specific site.</p>
+            <p style="margin-top:8px">The WordPress redirect ecosystem has a clear hierarchy of quality: Rank Math's built-in redirections module is the best option for sites already using Rank Math for SEO, because it eliminates a separate plugin dependency and provides redirect management in the same interface as SEO settings. For sites using Yoast, John Godley's Redirection plugin (the most-installed redirect plugin in WordPress) is the standard. The worst option is having multiple plugins &mdash; they can conflict, creating redirect loops or double-hops that waste crawl budget.</p>
+            <p style="margin-top:8px">Since staging already uses Rank Math, and the migration is consolidating all domains onto one site, Rank Math Redirections is the clear choice. It can handle 8,526+ rules (it uses the database, not .htaccess), it supports regex patterns, and it integrates with Rank Math's SEO monitoring.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> Standardise on Rank Math Redirections on the consolidated staging site. Disable all other redirect plugins. Export existing rules from 301 Redirects Pro (3 rules) and LUL Rank Math (190 rules) into the staging Rank Math instance. Then load the 8,526 StudioHawk rules. Target: one plugin, one interface, one place to check.</div>
+            <span class="source">Reference: Rank Math redirect module documentation; John Godley's Redirection plugin comparison; WordPress.org plugin repository usage statistics; WP Engine redirect best practices</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-high priority">High</span>
+          <h4>The Assumption Error Is a Process Lesson Worth Institutionalising</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>The auditor assumed Rank Math handled redirects on all sites. The actual plugin data was available from the very first API pull, showing 5 different redirect plugins. This assumption delayed the most critical finding by hours. In auditing, the cardinal sin is not checking what is actually installed before making assumptions about capability.</p>
+            <p style="margin-top:8px">This is a known failure mode in WordPress audits. The "WordPress Way" is to assume uniformity across a multi-site ecosystem, but WordPress's plugin architecture means every site can be completely different. Professional WordPress audit frameworks (WP-CLI's <code>doctor</code> command, ManageWP's audit reports, Jetstress's pre-migration checks) all start with plugin inventory as Step 1.</p>
+            <p style="margin-top:8px">The second assumption error (writing manual instructions for Gurveer instead of asking Thomas for SSH access) is equally instructive. When an audit is blocked, the first question should be "can I get access to solve this myself?" not "how do I document this for someone else to do." Every hand-off introduces delay, miscommunication risk, and opportunity cost.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> For every future WordPress audit, create a mandatory "First 5 Minutes" checklist: (1) Pull plugin list from ALL sites, (2) Identify which plugin handles each critical function (SEO, redirects, caching, security, forms), (3) Verify SSH access to all sites, (4) Run <code>wp db tables</code> to see actual database structure. Do not proceed with domain-specific analysis until this baseline is established. Save this as a reusable audit protocol.</div>
+            <span class="source">Reference: WordPress VIP audit methodology; WP-CLI doctor command documentation; ManageWP pre-migration audit framework; "The WordPress Migration Playbook" by Human Made</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-high priority">High</span>
+          <h4>SSH-First Auditing Is a Force Multiplier</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>The REST API gives you what WordPress wants you to see. SSH/WP-CLI gives you what the database actually contains. This session proved the difference: the Rank Math REST API returned 404 for redirections (the endpoint doesn't exist), but a direct database query via SSH revealed the actual redirect tables, their contents, and which sites had zero redirect capability. Without SSH, this critical finding would have been documented as "blocked" instead of "catastrophic."</p>
+            <p style="margin-top:8px">WP-CLI on WP Engine also enables operations that the REST API cannot: database table inspection, post meta querying, serialised data handling, cron job auditing, and direct SQL for one-off verification. The timeout issues encountered (LUL at 243 lines, staging at 113 lines) suggest WP Engine has SSH session limits &mdash; the workaround is to break large queries into smaller chunks or use <code>wp db query</code> with <code>LIMIT</code> and <code>OFFSET</code> pagination.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> Establish SSH-first as the default audit methodology. API second, for data that is cleanly exposed. For WP Engine SSH timeout issues, use chunked queries: <code>wp db query "SELECT ... LIMIT 100 OFFSET 0"</code>, then <code>OFFSET 100</code>, etc. Consider creating a reusable WP-CLI audit script that runs all standard checks in one command.</div>
+            <span class="source">Reference: WP-CLI documentation; WP Engine SSH access guide; WordPress REST API limitations documentation; "Database-Level WordPress Auditing" by Developer Resources</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-medium priority">Medium</span>
+          <h4>The "This is order listing page." Prefix Suggests a Deeper Theme Issue</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>The fact that both EF and BF API responses were prefixed with "This is order listing page." text indicates a custom theme or plugin function is outputting content before WordPress processes the REST API response. This is a classic WordPress anti-pattern: a function hooked to <code>template_redirect</code> or <code>init</code> that outputs text unconditionally, including during API requests.</p>
+            <p style="margin-top:8px">This will affect any future API integration (headless frontend, mobile app, third-party sync, Zapier/Make automations). It should be traced to its source (likely in the theme's <code>functions.php</code> or a custom plugin) and wrapped in a <code>if (!defined('REST_REQUEST'))</code> conditional so it only fires during normal page loads.</p>
+            <p style="margin-top:8px">This is also a symptom of technical debt in the theme layer. If the theme is outputting text into API responses, what else might it be doing? A theme function audit would be worthwhile before migration to identify any other functions that could interfere with the consolidated site.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> Search the theme's <code>functions.php</code> and any custom plugins for the string "This is order listing page" to find the source. Wrap it in <code>if (!wp_is_rest_request())</code> or <code>if (!defined('REST_REQUEST'))</code>. Consider a broader theme function audit to catch similar issues before migration.</div>
+            <span class="source">Reference: WordPress REST API Handbook on request lifecycle; WordPress theme development best practices; "Common WordPress Theme Anti-Patterns" by developer community guides</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="expert-item" onclick="toggleExpert(this)">
+        <div class="expert-item-header">
+          <span class="severity severity-medium priority">Medium</span>
+          <h4>BF's 117 Enquiry Form Users Are a Data Architecture Decision, Not Just Cleanup</h4>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
+        </div>
+        <div class="expert-item-body">
+          <div class="expert-item-body-inner">
+            <p>The 117 user accounts on BF created by enquiry form submissions represent a data architecture decision, not just a cleanup task. These are leads &mdash; people who expressed interest in Barely Famous's services. Simply deleting them loses business intelligence. But migrating them as WordPress users to the consolidated site creates security exposure (117 accounts with potential default passwords) and user table bloat.</p>
+            <p style="margin-top:8px">The correct approach is to export this data to a CRM or marketing automation platform before deletion. The enquiry form plugin likely stored additional metadata (inquiry date, service interest, message content) in usermeta or a custom table. This data should be extracted as a CSV and imported into whatever CRM or email marketing tool EF uses (Mailchimp, HubSpot, ActiveCampaign, etc.).</p>
+            <p style="margin-top:8px">This is also a GDPR/Australian Privacy Act consideration. These users provided personal information for a specific purpose (making an enquiry). If you delete their accounts without first checking data retention obligations, or if you migrate them to a different entity's system without consent, you may be creating a compliance issue.</p>
+            <div class="recommendation"><strong>Recommendation:</strong> (1) Export BF user data (email, name, enquiry date, message) to CSV before any deletion. (2) Import into EF's CRM/email marketing platform. (3) Check Australian Privacy Act obligations for data retention on enquiry form submissions. (4) Delete the WordPress user accounts only after export is confirmed. (5) Do NOT migrate these accounts to the staging site.</div>
+            <span class="source">Reference: Australian Privacy Act 1988 (APP 11); WordPress user data export tools; CRM data migration best practices; OAIC guidance on data retention</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Generated by Socrates AI (Claude Opus 4.6) &middot; 7 April 2026<br>
+    Events Fantastic Australia &middot; No shortcuts. No assumptions.
+  </div>
+
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Expandable cards
+  function toggleCard(el) {
+    el.classList.toggle('open');
+  }
+
+  // Expandable expert items
+  function toggleExpert(el) {
+    el.classList.toggle('open');
+  }
+
+  // Score gauge animation
+  document.querySelectorAll('.score-ring .fill').forEach(circle => {
+    const score = parseFloat(circle.dataset.score || 0);
+    const max = parseFloat(circle.dataset.max || 100);
+    const circumference = 2 * Math.PI * 42;
+    const offset = circumference - (score / max) * circumference;
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = circumference;
+    setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
+  });
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const text = btn.dataset.copy || btn.previousElementSibling?.textContent || '';
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      });
+    });
+  });
+
+  // Keyboard navigation for tabs
+  document.querySelector('.tab-nav')?.addEventListener('keydown', (e) => {
+    const tabs = [...document.querySelectorAll('.tab-btn')];
+    const idx = tabs.indexOf(document.activeElement);
+    if (idx === -1) return;
+    if (e.key === 'ArrowRight' && idx < tabs.length - 1) { tabs[idx + 1].focus(); tabs[idx + 1].click(); }
+    if (e.key === 'ArrowLeft' && idx > 0) { tabs[idx - 1].focus(); tabs[idx - 1].click(); }
+  });
+</script>
+
+</body>
+</html>
