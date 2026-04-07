@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WooCommerce Product Completeness Audit — Events Fantastic Migration Audit</title>
+    <style>
+:root {
+    --bg: #0d0d14;
+    --card-bg: #14141f;
+    --card-border: #1e1e32;
+    --primary: #89b4fa;
+    --success: #a6e3a1;
+    --warning: #fab387;
+    --error: #f38ba8;
+    --text: #cdd6f4;
+    --text-dim: #6c7086;
+    --text-bright: #f0f0f8;
+    --table-header: #1a1a2e;
+    --table-stripe: #111122;
+    --code-bg: #1a1a2e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: var(--primary);
+    font-size: 2rem;
+    margin: 2rem 0 1rem 0;
+    border-bottom: 2px solid var(--card-border);
+    padding-bottom: 0.5rem;
+}
+
+h2 {
+    color: var(--primary);
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem 0;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0.3rem;
+}
+
+h3 {
+    color: var(--text-bright);
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+h4 {
+    color: var(--text-bright);
+    font-size: 1.05rem;
+    margin: 1.2rem 0 0.4rem 0;
+}
+
+p { margin: 0.6rem 0; }
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+strong { color: var(--text-bright); }
+
+code {
+    background: var(--code-bg);
+    color: var(--warning);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+}
+
+pre {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    color: var(--text);
+}
+
+blockquote {
+    border-left: 4px solid var(--warning);
+    background: rgba(250, 179, 135, 0.05);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+blockquote p { margin: 0.3rem 0; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.92em;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--primary);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border: 1px solid var(--card-border);
+    font-weight: 600;
+}
+
+td {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--card-border);
+}
+
+tr:nth-child(even) { background: var(--table-stripe); }
+tr:hover { background: rgba(137, 180, 250, 0.05); }
+
+ul, ol {
+    margin: 0.5rem 0 0.5rem 1.5rem;
+}
+
+li { margin: 0.3rem 0; }
+
+hr {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 2rem 0;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+}
+
+.score-stop { background: rgba(243, 139, 168, 0.15); color: var(--error); border: 2px solid var(--error); }
+.score-delay { background: rgba(250, 179, 135, 0.15); color: var(--warning); border: 2px solid var(--warning); }
+.score-conditional { background: rgba(166, 227, 161, 0.15); color: var(--success); border: 2px solid var(--success); }
+.score-go { background: rgba(166, 227, 161, 0.25); color: var(--success); border: 2px solid var(--success); }
+
+em { color: var(--text-dim); font-style: italic; }
+
+.footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--card-border);
+    color: var(--text-dim);
+    font-size: 0.85em;
+    text-align: centre;
+}
+
+@media print {
+    body { background: white; color: #1a1a1a; padding: 1rem; }
+    h1, h2, h3 { color: #1a365d; }
+    th { background: #edf2f7; color: #1a365d; }
+    tr:nth-child(even) { background: #f7fafc; }
+    blockquote { border-left-color: #e2a148; background: #fffbeb; }
+    code { background: #f1f5f9; color: #c53030; }
+    pre { background: #f8fafc; border-color: #e2e8f0; }
+    td, th { border-color: #e2e8f0; }
+}
+</style>
+</head>
+<body>
+<h1>Check 4.7: WooCommerce Product Completeness Audit</h1>
+<p><strong>Date:</strong> 7 April 2026</p>
+<p><strong>Auditor:</strong> Claude (automated analysis)</p>
+<p><strong>Severity:</strong> CRITICAL -- every missing product is lost revenue</p>
+<hr>
+<h2>Executive Summary</h2>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Live EF inventory (CPT)</strong></td>
+<td>892</td>
+</tr>
+<tr>
+<td><strong>Live EF backdrops (CPT)</strong></td>
+<td>447</td>
+</tr>
+<tr>
+<td><strong>Combined live total</strong></td>
+<td>1,339</td>
+</tr>
+<tr>
+<td><strong>Staging WC products</strong></td>
+<td>1,311</td>
+</tr>
+<tr>
+<td><strong>Gross gap</strong></td>
+<td>28</td>
+</tr>
+<tr>
+<td><strong>Matched (slug or title)</strong></td>
+<td>1,129</td>
+</tr>
+<tr>
+<td><strong>Unmatched live items (MISSING from staging)</strong></td>
+<td>210</td>
+</tr>
+<tr>
+<td><strong>Unmatched staging items (NEW on staging)</strong></td>
+<td>182</td>
+</tr>
+<tr>
+<td><strong>Net gap explained</strong></td>
+<td>210 - 182 = 28 (matches the gross gap)</td>
+</tr>
+</tbody></table>
+<p><strong>Verdict:</strong> The 28-item gap is misleading. In reality, <strong>210 live products are missing from staging</strong> while <strong>182 new products were created</strong> on staging (mostly reformatted Light Up Letters and new backdrops). This is a structural change, not a simple migration gap -- but the 210 missing items still need to be accounted for.</p>
+<hr>
+<h2>1. Match Methodology</h2>
+<p>Matching was performed in two passes:</p>
+<ol>
+<li><strong>Slug match</strong> (exact, case-insensitive) -- matched 1,068 items</li>
+<li><strong>Normalised title match</strong> (stripped HTML entities, punctuation, lowercased) -- matched a further 61 items</li>
+</ol>
+<p>Total matched: <strong>1,129 of 1,339 live items</strong> (84.3%)</p>
+<hr>
+<h2>2. Unmatched Live Items -- The 210 Missing Products</h2>
+<h3>2.1 Breakdown by Source</h3>
+<table>
+<thead><tr>
+<th>Source</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>EF Inventory</td>
+<td>185</td>
+</tr>
+<tr>
+<td>EF Backdrops</td>
+<td>25</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>210</strong></td>
+</tr>
+<h3>2.2 Inventory Breakdown by Category (185 items)</h3>
+<tr>
+<td>Category</td>
+<td>Count</td>
+<td>Notes</td>
+</tr>
+<tr>
+<td>----------</td>
+<td>-------</td>
+<td>-------</td>
+</tr>
+<tr>
+<td><strong>1.2m Light Up Letters/Numbers</strong></td>
+<td>106</td>
+<td>Individual letter/number products (A-Z, 0-9, symbols, phrases)</td>
+</tr>
+<tr>
+<td><strong>1.5m Light Up Letters/Numbers</strong></td>
+<td>43</td>
+<td>Larger variant, same pattern</td>
+</tr>
+<tr>
+<td><strong>Drapes/Curtains/Skirts</strong></td>
+<td>27</td>
+<td>Velveteen, poly, shimmer, chiffon drapes in various sizes</td>
+</tr>
+<tr>
+<td><strong>Lycra Chair Backs/Covers</strong></td>
+<td>14</td>
+<td>Coloured/patterned lycra chair accessories</td>
+</tr>
+<tr>
+<td><strong>Other inventory</strong></td>
+<td>37</td>
+<td>Mixed props, signs, canvas backdrops, table items</td>
+</tr>
+<h3>2.3 Light Up Letters Explanation (149 items)</h3>
+</tbody></table>
+<p>The 1.2m and 1.5m Light Up Letter ranges account for <strong>149 of the 185 missing inventory items</strong> (80.5%). On staging, there are <strong>107 new Light Up Letter/Neon products</strong> with the "Light Up Letters" brand and cleaner slugs (e.g., live: <code>a-1-2m-light-up-letter</code> --> staging: <code>a-1-2m</code> with name "A Light Up Letter 1.2m").</p>
+<p><strong>What happened:</strong> The Light Up Letters range was restructured during migration. The old individual-letter CPT items (with long slugs like <code>a-1-2m-light-up-letter</code>) were replaced by cleaner WC products (slug <code>a-1-2m</code>, name "A Light Up Letter 1.2m"). However:</p>
+<ul>
+<li>149 old items were removed</li>
+<li>Only 107 new items were created</li>
+<li><strong>42 Light Up Letter products appear to be genuinely missing</strong> (likely the 1.5m range was consolidated or dropped, plus some 1.2m items)</li>
+</ul>
+<h3>2.4 Missing Drapes/Curtains/Skirts (27 items)</h3>
+<p>These are individual drape products not migrated to staging. Many have no content or images on live, suggesting they may be legacy/discontinued items:</p>
+<table>
+<thead><tr>
+<th>Item</th>
+<th>Has Content</th>
+<th>Has Image</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>White Poly Flat Drape 4m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Poly Drape 7m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Stage Skirting 1m H x 14m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Stage Skirting 6m Wide x 0.9m High</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Poly Flat Drape 6m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Silver Metallic Drape 3m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Scallop Drape Silver with Gold Tassle Trim</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Scallop Red Drape 0.9m H x 2.9m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>String Curtain 3m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Black Velveteen Truss Border 0.55m H x 7m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Black Velveteen Truss Border 0.3m H x 12m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>String Curtain 3m H x 6m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>LED Wedding Drape 3m H x 6m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Gold Tinsle Drape 4.5m High x 8m Wide</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Gold Drape Tassle</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Scallop Drape Purple with Gold Tassle Trim</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Black Poly Stage Skirt (900mm H x 7.5m W)</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Black & White Check Drape 3m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Poly Stage Skirt 0.9m H x 7.5m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Austrian Drape Blue</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Red Shimmer Drape 3.2m H x 6m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Red Shimmer Drape 3.2m H x 3m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Black Flat Drape 6.5m H x 6.5m W</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>White Velveteen Drape 3m H x 1.5m W</td>
+<td>Yes (287)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>White Velveteen Drape 10m H x 1.5m W</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Black Microdot Drape 10.5m H x 1.5m W</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Black Velveteen Drape 6.5m H x 1.5m W</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Black Velveteen Drape 10.5m H x 1.5m W</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p><strong>Risk assessment:</strong> Most are bare-bones listings with no content or imagery. Three have featured images but no descriptions. Only one (White Velveteen Drape 3m H x 1.5m W) has both content and an image. These may be intentional omissions of discontinued stock, but <strong>this needs confirmation from the EF team</strong>.</p>
+<h3>2.5 Missing Lycra Chair Items (14 items)</h3>
+<p>All 14 are lycra chair backs or covers. Two have content (Metallic Gold Lycra Chair Cover: 1,393 chars; Orange Lycra Chair Cover: 1,722 chars). The rest are bare listings.</p>
+<p>Full list:</p>
+<ul>
+<li>Gold Flame Lycra Chair Back</li>
+<li>Black & White Check Lycra Chair Back</li>
+<li>Aqua Flame Lycra Chair Back (has image)</li>
+<li>Aqua Lycra Chair Back (has image)</li>
+<li>Zebra Print Lycra Chair Back</li>
+<li>Zebra Lycra Chair Back</li>
+<li>Purple Flame Lycra Chair Back</li>
+<li>Yellow Lycra Chair Back</li>
+<li>Shattered Glass Lycra Chair Back</li>
+<li>Red Flame Lycra Chair Back</li>
+<li>Real Flame Lycra Chair Back</li>
+<li>Purple (light) Lycra Chair Cover</li>
+<li>Metallic Gold Lycra Chair Cover (has content)</li>
+<li>Orange Lycra Chair Cover (has content)</li>
+</ul>
+<h3>2.6 Other Missing Inventory (37 items)</h3>
+<p>Notable items with content that need attention:</p>
+<table>
+<thead><tr>
+<th>Item</th>
+<th>Content (chars)</th>
+<th>Has Image</th>
+<th>Risk</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>80cm White Plinth</td>
+<td>1,129</td>
+<td>Yes</td>
+<td>HIGH -- active rental item</td>
+</tr>
+<tr>
+<td>Large Crystal Chandelier</td>
+<td>1,142</td>
+<td>No</td>
+<td>HIGH -- premium hire item</td>
+</tr>
+<tr>
+<td>Inflatable Pink Shiny Ornament 1.2m</td>
+<td>2,289</td>
+<td>No</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Nomad Set Panels</td>
+<td>1,279</td>
+<td>Yes</td>
+<td>HIGH -- unique stage set</td>
+</tr>
+<tr>
+<td>Silver Velvet Table Runner</td>
+<td>1,103</td>
+<td>No</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Scent Fan 450mm Dynabreeze</td>
+<td>1,418</td>
+<td>Yes</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>ID 21249 (no title, 4,483 chars content)</td>
+<td>4,483</td>
+<td>No</td>
+<td>CHECK -- may be draft/orphan</td>
+</tr>
+<tr>
+<td>Black Satin Table Cloth</td>
+<td>0</td>
+<td>Yes</td>
+<td>LOW</td>
+</tr>
+</tbody></table>
+<p>Remaining items (no content, no images) are likely legacy props: Casino Sign, Exit Signs, Haunted House, King Tutt Flat, Jungle Shield, Medieval Banners, various canvas backdrops, Bubble Machines, Fishing Nets, etc.</p>
+<h3>2.7 Missing Backdrops (25 items)</h3>
+<p>These live backdrop items have no matching staging product. However, <strong>many appear to have been re-created on staging with different slugs</strong> (see section 3 below). Items with meaningful content at risk:</p>
+<table>
+<thead><tr>
+<th>Backdrop</th>
+<th>Content (chars)</th>
+<th>Has Image</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>50's Diner Interior C Party Backdrop</td>
+<td>1,236</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Tropical Beach 2B Party Backdrop</td>
+<td>1,167</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Musical Notes 2</td>
+<td>905</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>1980s Graffiti B Party Backdrop</td>
+<td>993</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Tropical Sunset Cruise 2</td>
+<td>832</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Deco Party 1B Party Backdrop</td>
+<td>1,010</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Tropical Beach Sunset B Party Backdrop</td>
+<td>1,158</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Deco Party 1C Party Backdrop</td>
+<td>944</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Back to the 80's B Party Backdrop</td>
+<td>1,219</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Tropical Sunset Cruise 2C Party Backdrop</td>
+<td>1,388</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p>Backdrops without content (likely legacy/bare listings):</p>
+<ul>
+<li>Tropical Jungle 4, Horse Racing 2B, Tropical Sunset Cruise 3, Central Park Winter 1C, Santa's Chair, Paris Opera Staircase B, Mouline Rouge 3 (note typo), Deep Space B, Arabian Nights 1 B, Pink Petals, Sunrise Floral, Spring Florals 1, Spring Florals 2, Tropical Jungle 3B, White Velveteen Drape 3m x 10m</li>
+</ul>
+<hr>
+<h2>3. New Staging Products (182 items with no live equivalent)</h2>
+<h3>3.1 Breakdown</h3>
+<table>
+<thead><tr>
+<th>Category</th>
+<th>Count</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Light Up Letters / Neon Signs</strong></td>
+<td>107</td>
+<td>Reformatted range with cleaner names, "Light Up Letters" brand</td>
+</tr>
+<tr>
+<td><strong>Backdrops</strong></td>
+<td>61</td>
+<td>Mix of re-created duplicates and genuinely new backdrops</td>
+</tr>
+<tr>
+<td><strong>Inventory</strong></td>
+<td>14</td>
+<td>New carpet runners, bar inserts, bollard signs, stage skirt</td>
+</tr>
+<h3>3.2 New Inventory Items (14)</h3>
+</tbody></table>
+<p>These appear to be genuinely new products added during migration:</p>
+<ul>
+<li>Austrian Drape Silver</li>
+<li>200m Tall x 30m Skirt for 9m Round Stage (note: likely typo -- 2.00m?)</li>
+<li>Illuminated Bar Side Insert - Black Acrylic</li>
+<li>Illuminated Bar Side Insert - Futuristic Metal</li>
+<li>Dry Bar with White 4 Tolix Stools Package</li>
+<li>White Carpet Runner 1.2m x 12m / 5m / 3m</li>
+<li>Red Carpet Runner 1.2m x 5m</li>
+<li>Silver A4 Bollard Signs</li>
+<li>Blue Carpet Runner 1.2m x 12m / 3m</li>
+<li>Black Carpet Runner 1.2m x 12m / 5m</li>
+</ul>
+<h3>3.3 Likely Duplicate Backdrops (staging re-creations of live items)</h3>
+<p>Many "unmatched staging" backdrops appear to be re-created versions of "unmatched live" backdrops with different slugs. Probable pairs:</p>
+<table>
+<thead><tr>
+<th>Live Slug</th>
+<th>Staging Slug</th>
+<th>Title</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>50s-diner-interior-c-2</code></td>
+<td><code>diner-interior-c</code></td>
+<td>50's Diner Interior C</td>
+</tr>
+<tr>
+<td><code>tropical-beach2b</code></td>
+<td><code>tropical-beach-2b</code></td>
+<td>Tropical Beach 2B</td>
+</tr>
+<tr>
+<td><code>1980s-graffiti-b</code></td>
+<td><code>1980s-graffiti-2</code></td>
+<td>1980s Graffiti B</td>
+</tr>
+<tr>
+<td><code>tropical-sunset-cruise-2</code></td>
+<td><code>tropical-sunset-cruise-2lg-2</code></td>
+<td>Tropical Sunset Cruise 2LG</td>
+</tr>
+<tr>
+<td><code>tropical-sunset-cruise-3</code></td>
+<td><code>tropical-sunset-cruise-3lg-2</code></td>
+<td>Tropical Sunset Cruise 3LG</td>
+</tr>
+<tr>
+<td><code>tropical-sunset-cruise-2c</code></td>
+<td><code>sunset-cruise</code></td>
+<td>Tropical Sunset Cruise 2C</td>
+</tr>
+<tr>
+<td><code>central-park-winter-1c</code></td>
+<td><code>central-park-winter-1-b</code></td>
+<td>Central Park Winter 1C</td>
+</tr>
+<tr>
+<td><code>paris-opera-staircase-b</code></td>
+<td><code>paris-opera-staircase-2</code></td>
+<td>Paris Opera Staircase B</td>
+</tr>
+<tr>
+<td><code>deco-party-1b</code></td>
+<td><code>art-deco-1b</code></td>
+<td>Deco Party 1B</td>
+</tr>
+<tr>
+<td><code>deco-party-1c</code></td>
+<td><code>art-deco-1c</code></td>
+<td>Deco Party 1C</td>
+</tr>
+<tr>
+<td><code>deep-space-b</code></td>
+<td><code>deep-spaceb</code></td>
+<td>Deep Space B</td>
+</tr>
+<tr>
+<td><code>back-to-the-80s-b</code></td>
+<td><code>back-to-the-80sb</code></td>
+<td>Back to the 80's B</td>
+</tr>
+<tr>
+<td><code>arabian-nights-1-b</code></td>
+<td><code>arabian-nights-b</code></td>
+<td>Arabian Nights 1 B</td>
+</tr>
+<tr>
+<td><code>pink-petals</code></td>
+<td><code>pink-petals-flower-party-backdrop</code></td>
+<td>Pink Petals</td>
+</tr>
+<tr>
+<td><code>sunrise-floral</code></td>
+<td><code>sunrise-floral-flower-backdrop</code></td>
+<td>Sunrise Floral</td>
+</tr>
+<tr>
+<td><code>spring-florals-1</code></td>
+<td><code>spring-floras-1-flower-backdrop-2</code></td>
+<td>Spring Florals 1</td>
+</tr>
+<tr>
+<td><code>spring-florals-2</code></td>
+<td><code>spring-floras-2</code></td>
+<td>Spring Florals 2</td>
+</tr>
+<tr>
+<td><code>tropical-jungle-3b</code></td>
+<td><code>tropical-jungle-3b-2</code></td>
+<td>Tropical Jungle 3B</td>
+</tr>
+<tr>
+<td><code>tropical-beach-sunset-b</code></td>
+<td><code>tropical-beach-sunset-b-2</code></td>
+<td>Tropical Beach Sunset B</td>
+</tr>
+<tr>
+<td><code>horse-racing-2b</code></td>
+<td><code>sports-racing-2b</code></td>
+<td>Horse Racing 2B</td>
+</tr>
+<tr>
+<td><code>musical-notes-2</code></td>
+<td><code>musical-notes-2b</code></td>
+<td>Musical Notes 2/2B</td>
+</tr>
+<tr>
+<td><code>mouline-rouge-3</code></td>
+<td><code>bien-venu-au-moulin-rouge</code></td>
+<td>Moulin Rouge variant</td>
+</tr>
+</tbody></table>
+<p><strong>CRITICAL CONCERN:</strong> These are duplicate slugs that will break redirect chains and SEO equity. The old live slugs will 404 unless redirects are in place, and the new staging slugs create a different URL path. <strong>All 25 unmatched live backdrop slugs need 301 redirects to their staging counterparts.</strong></p>
+<h3>3.4 Genuinely New Backdrops on Staging</h3>
+<p>Backdrops that appear to be entirely new additions (not found on live at all):</p>
+<ul>
+<li>Winter Wonderland 20</li>
+<li>Whitewash Timber</li>
+<li>Whitewash Brick</li>
+<li>Victorian Bank Interior</li>
+<li>Unicorns and Rainbows B</li>
+<li>Stories From A Dancer's Soul</li>
+<li>South Pacific Sunset</li>
+<li>Shrek's Swamp</li>
+<li>Shrek Duloc Castle Exterior</li>
+<li>Rydell High School Exterior</li>
+<li>Party Barn / Party Barn B</li>
+<li>Pandora B</li>
+<li>Palace Interior D</li>
+<li>Old London Street 1</li>
+<li>Moonlight in Paris B</li>
+<li>London Rooftop Sunset</li>
+<li>Las Vegas Bellagio B</li>
+<li>Las Vegas 2B</li>
+<li>Growing Christmas Tree</li>
+<li>Green Screen PD</li>
+<li>Fionas Balcony B</li>
+<li>Creepy Forest 2</li>
+<li>Comic Book 2B</li>
+<li>Cherry Street Lane 1B</li>
+<li>Bondi Beach Icebergs 1B</li>
+<li>Alpine Village</li>
+<li>Agrabah Palace Gates / Agrabah Bazaar</li>
+<li>8 x Christmas Markets Stylised variants</li>
+<li>Christmas Eve</li>
+</ul>
+<hr>
+<h2>4. Matched Product Quality Analysis (1,129 items)</h2>
+<h3>4.1 Title Mismatches</h3>
+<p><strong>94 matched products have different titles</strong> between live and staging. Common patterns:</p>
+<table>
+<thead><tr>
+<th>Pattern</th>
+<th>Count</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>"Party Backdrop" suffix removed</td>
+<td>~65</td>
+<td>"Disco 3B Party Backdrop" --> "Disco 3B"</td>
+</tr>
+<tr>
+<td>Dimension/detail added or reworded</td>
+<td>~15</td>
+<td>"5 Prong Gold Ornate Candelabra" --> "55cm Gold Ornate 5 Prong Candelabra"</td>
+</tr>
+<tr>
+<td>Minor wording changes</td>
+<td>~10</td>
+<td>"Inflatable Tentacles 3m" --> "Inflatable Tentacle 3m"</td>
+</tr>
+<tr>
+<td>Spelling corrections</td>
+<td>~4</td>
+<td>"Psychadelia" --> "Psychedelia"; "Rockefeller Center" --> "Rockefeller Centre"</td>
+</tr>
+</tbody></table>
+<p><strong>Note on backdrop titles:</strong> The systematic removal of "Party Backdrop" from backdrop titles is a deliberate cleanup. This is fine for branding but may affect search rankings if the old titles had SEO value.</p>
+<h3>4.2 Content Integrity</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Content LOST (live had >50 chars, staging has 0)</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Content significantly shorter (staging < 50% of live)</td>
+<td><strong>0</strong></td>
+</tr>
+</tbody></table>
+<p><strong>This is excellent.</strong> No content has been lost during migration for matched products. The staging content appears to be equal to or richer than live content for all matched items.</p>
+<h3>4.3 Featured Image Migration</h3>
+<p><strong>15 matched products lost their featured image</strong> during migration. All are Lycra Table Caps from the inventory:</p>
+<ol>
+<li>Flame Lycra Table Cap</li>
+<li>Gold Lycra Table Cap</li>
+<li>Purple Lycra Table Cap</li>
+<li>Silver Grey Lycra Table Cap</li>
+<li>Zebra Lycra Table Cap</li>
+<li>Maroon Lycra Table Cap</li>
+<li>Yellow Lycra Table Cap</li>
+<li>Lime Lycra Table Cap</li>
+<li>Black Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Black & White Check Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Blue Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Green Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Pink Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Navy Lycra Table Cap</li>
+</ol>
+<ol>
+<li>Orange Lycra Table Cap</li>
+</ol>
+<p><strong>Action required:</strong> Re-upload images for these 15 products.</p>
+<hr>
+<h2>5. Empty Descriptions on Staging</h2>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Count</th>
+<th>Percentage</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Zero content</strong> (description + short description)</td>
+<td>67</td>
+<td>5.1%</td>
+</tr>
+<tr>
+<td><strong>Very short content</strong> (1-20 chars)</td>
+<td>5</td>
+<td>0.4%</td>
+</tr>
+<tr>
+<td><strong>No images</strong></td>
+<td>41</td>
+<td>3.1%</td>
+</tr>
+<h3>5.1 Content Length Distribution (Staging)</h3>
+<tr>
+<td>Range</td>
+<td>Count</td>
+<td>Percentage</td>
+</tr>
+<tr>
+<td>-------</td>
+<td>-------</td>
+<td>-----------</td>
+</tr>
+<tr>
+<td>0 chars (empty)</td>
+<td>67</td>
+<td>5.1%</td>
+</tr>
+<tr>
+<td>1-50 chars</td>
+<td>5</td>
+<td>0.4%</td>
+</tr>
+<tr>
+<td>51-200 chars</td>
+<td>2</td>
+<td>0.2%</td>
+</tr>
+<tr>
+<td>201-500 chars</td>
+<td>1</td>
+<td>0.1%</td>
+</tr>
+<tr>
+<td>501-1,000 chars</td>
+<td>6</td>
+<td>0.5%</td>
+</tr>
+<tr>
+<td>1,001-2,000 chars</td>
+<td>121</td>
+<td>9.2%</td>
+</tr>
+<tr>
+<td>2,001-5,000 chars</td>
+<td>1,106</td>
+<td>84.4%</td>
+</tr>
+<tr>
+<td>5,001+ chars</td>
+<td>3</td>
+<td>0.2%</td>
+</tr>
+</tbody></table>
+<p><strong>Context:</strong> On the live site, 460 of 1,339 items (34.4%) had zero content. Staging has reduced this to just 67 of 1,311 (5.1%). This represents a <strong>massive improvement</strong> in content coverage -- the migration added descriptions to hundreds of previously bare products.</p>
+<h3>5.2 Live vs Staging Content Comparison</h3>
+<table>
+<thead><tr>
+<th>Range</th>
+<th>Live</th>
+<th>Staging</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>0 chars</td>
+<td>460 (34.4%)</td>
+<td>67 (5.1%)</td>
+</tr>
+<tr>
+<td>1-50 chars</td>
+<td>76 (5.7%)</td>
+<td>5 (0.4%)</td>
+</tr>
+<tr>
+<td>51-500 chars</td>
+<td>16 (1.2%)</td>
+<td>3 (0.2%)</td>
+</tr>
+<tr>
+<td>501-2,000 chars</td>
+<td>601 (44.9%)</td>
+<td>127 (9.7%)</td>
+</tr>
+<tr>
+<td>2,001+ chars</td>
+<td>186 (13.9%)</td>
+<td>1,109 (84.6%)</td>
+</tr>
+</tbody></table>
+<p>The content enrichment during migration is significant -- 84.6% of staging products now have 2,000+ character descriptions vs only 13.9% on live.</p>
+<hr>
+<h2>6. Brand/Category Structure on Staging</h2>
+<h3>6.1 Brands</h3>
+<table>
+<thead><tr>
+<th>Brand</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Events Fantastic</td>
+<td>706</td>
+</tr>
+<tr>
+<td>Backdrops Fantastic</td>
+<td>483</td>
+</tr>
+<tr>
+<td>Light Up Letters</td>
+<td>107</td>
+</tr>
+<tr>
+<td>Modular Backdrops</td>
+<td>14</td>
+</tr>
+<h3>6.2 Top Categories</h3>
+<tr>
+<td>Category</td>
+<td>Count</td>
+</tr>
+<tr>
+<td>----------</td>
+<td>-------</td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td>707</td>
+</tr>
+<tr>
+<td>Backdrops</td>
+<td>483</td>
+</tr>
+<tr>
+<td>Event Props Hire</td>
+<td>148</td>
+</tr>
+<tr>
+<td>Party Backdrops</td>
+<td>117</td>
+</tr>
+<tr>
+<td>Table Centrepieces for Hire</td>
+<td>107</td>
+</tr>
+<tr>
+<td>Light Up Letters</td>
+<td>107</td>
+</tr>
+<tr>
+<td>Dry Bars & Lycra Covers</td>
+<td>97</td>
+</tr>
+<tr>
+<td>Event Inflatables For Hire</td>
+<td>88</td>
+</tr>
+<tr>
+<td>Dance Backdrops</td>
+<td>86</td>
+</tr>
+<tr>
+<td>Birthday Light Up Numbers</td>
+<td>70</td>
+</tr>
+<tr>
+<td>Christmas Backdrops</td>
+<td>70</td>
+</tr>
+<hr>
+<h2>7. Critical Findings and Recommendations</h2>
+<h3>CRITICAL (must fix before go-live)</h3>
+</tbody></table>
+<ol>
+<li><strong>15 Lycra Table Cap products lost their featured images</strong> -- re-upload immediately</li>
+<li><strong>25 live backdrop URLs will 404</strong> unless redirects are created to their new staging slugs (see section 3.3 redirect pairs table)</li>
+<li><strong>80cm White Plinth and Large Crystal Chandelier are missing</strong> from staging -- these are active rental products with full content descriptions</li>
+<li><strong>Nomad Set Panels missing</strong> -- unique product with 1,279 chars of content and featured image</li>
+</ol>
+<h3>HIGH (should fix before go-live)</h3>
+<ol>
+<li><strong>67 staging products have empty descriptions</strong> (5.1%) -- while massively improved from live (34.4%), these should still be filled in</li>
+<li><strong>41 staging products have no images</strong> -- visual content is essential for hire products</li>
+<li><strong>Confirm intentional omission of 27 drape/curtain items</strong> -- if any are still in stock, they need to be migrated</li>
+<li><strong>Confirm intentional omission of 14 lycra chair items</strong> -- 2 have rich content (1,393 and 1,722 chars)</li>
+<li><strong>Review the 1.5m Light Up Letter range</strong> -- 43 items appear dropped entirely; confirm if this range is discontinued</li>
+</ol>
+<h3>MEDIUM (should fix post-launch)</h3>
+<ol>
+<li><strong>94 title mismatches between live and staging</strong> -- most are intentional cleanups but verify no SEO impact</li>
+</ol>
+<ol>
+<li><strong>Product ID 21249 on live has 4,483 chars of content but no title</strong> -- check if this is an orphaned draft</li>
+</ol>
+<ol>
+<li><strong>"200m Tall x 30m Skirt" on staging</strong> -- likely a typo (should be 2.00m?)</li>
+</ol>
+<ol>
+<li><strong>"Mouline Rouge 3" on live (slug: <code>mouline-rouge-3</code>)</strong> -- typo in live data; staging has a different slug</li>
+</ol>
+<h3>LOW</h3>
+<ol>
+<li><strong>Spelling correction "Psychadelia" --> "Psychedelia"</strong> on staging is correct -- just note for redirect</li>
+</ol>
+<ol>
+<li><strong>"Rockefeller Center" --> "Rockefeller Centre"</strong> -- Australian spelling applied, correct</li>
+</ol>
+<hr>
+<h2>8. Summary Scorecard</h2>
+<table>
+<thead><tr>
+<th>Check</th>
+<th>Result</th>
+<th>Score</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>All live items accounted for</td>
+<td>1,129/1,339 matched (84.3%); 210 missing but 182 new created</td>
+<td>6/10</td>
+</tr>
+<tr>
+<td>Content preservation (matched items)</td>
+<td>0 items lost content</td>
+<td>10/10</td>
+</tr>
+<tr>
+<td>Content enrichment</td>
+<td>84.6% now have 2,000+ chars (was 13.9%)</td>
+<td>10/10</td>
+</tr>
+<tr>
+<td>Image migration (matched items)</td>
+<td>15 lost images</td>
+<td>8/10</td>
+</tr>
+<tr>
+<td>Empty descriptions (staging)</td>
+<td>67 of 1,311 (5.1%)</td>
+<td>8/10</td>
+</tr>
+<tr>
+<td>Redirect coverage for changed slugs</td>
+<td>Not verified -- 25 backdrop slug changes identified</td>
+<td>4/10</td>
+</tr>
+<tr>
+<td><strong>Overall</strong></td>
+<td>Good migration with structural improvements but gaps in niche ranges</td>
+<td><strong>7.5/10</strong></td>
+</tr>
+<hr>
+<h2>Data Files</h2>
+</tbody></table>
+<ul>
+<li><strong>Match data:</strong> <code>D:\Website_Audit\data\live-api\woocommerce-match-data.json</code></li>
+<li><strong>Source data:</strong> <code>D:\Website_Audit\data\live-api\staging\woocommerce-products.json</code></li>
+<li><strong>Live inventory:</strong> <code>D:\Website_Audit\data\live-api\eventsfantastic\cpt-inventory.json</code></li>
+<li><strong>Live backdrops:</strong> <code>D:\Website_Audit\data\live-api\eventsfantastic\cpt-backdrops.json</code></li>
+</ul>
+<div class="footer">
+    <p>Events Fantastic Australia &middot; Migration Audit &middot; Generated 7 April 2026 &middot; Socrates AI</p>
+</div>
+</body>
+</html>
