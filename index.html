@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Migration Audit Index — Events Fantastic Australia</title>
+    <title>Events Fantastic Australia -- 4-Domain Migration Audit</title>
     <style>
         :root {
             --bg: #0d0d14;
@@ -17,6 +17,7 @@
             --text-dim: #6c7086;
             --text-bright: #f0f0f8;
             --surface: #181825;
+            --surface-2: #1e1e2e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,1022 +26,1726 @@
             background: var(--bg);
             color: var(--text);
             font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            line-height: 1.7;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 2rem 1.5rem;
         }
 
-        /* ===== HERO SECTION ===== */
+        /* ===== HEADER / HERO ===== */
         .hero {
             text-align: center;
-            padding: 3rem 2rem;
+            padding: 3rem 2rem 2.5rem;
             background: linear-gradient(135deg, #14141f 0%, #1a1a2e 50%, #14141f 100%);
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .hero h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: var(--text-bright);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.5px;
         }
 
         .hero .subtitle {
             color: var(--text-dim);
-            font-size: 1rem;
+            font-size: 0.95rem;
             margin-bottom: 2rem;
         }
 
         .score-display {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 1.5rem;
-            background: rgba(243, 139, 168, 0.08);
-            border: 2px solid var(--error);
-            border-radius: 16px;
-            padding: 1.5rem 3rem;
-            margin: 1rem 0;
+            margin-bottom: 1.5rem;
         }
 
-        .score-number {
-            font-size: 4rem;
+        .score-gauge {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .score-gauge svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-gauge .bg-ring {
+            fill: none;
+            stroke: var(--surface);
+            stroke-width: 12;
+        }
+
+        .score-gauge .score-ring {
+            fill: none;
+            stroke: var(--error);
+            stroke-width: 12;
+            stroke-linecap: round;
+            stroke-dasharray: 408.4;
+            stroke-dashoffset: 218.5;
+            transition: stroke-dashoffset 1.5s ease;
+        }
+
+        .score-gauge .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-gauge .score-number {
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--error);
             line-height: 1;
         }
 
-        .score-label {
-            text-align: left;
-        }
-
-        .score-label .verdict {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--error);
-            letter-spacing: 0.15em;
-        }
-
-        .score-label .desc {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-        }
-
-        .score-bar-container {
-            width: 100%;
-            max-width: 500px;
-            margin: 1.5rem auto 0;
-            height: 8px;
-            background: var(--surface);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .score-bar {
-            height: 100%;
-            width: 46.5%;
-            background: linear-gradient(90deg, var(--error), var(--warning));
-            border-radius: 4px;
-            transition: width 1s ease;
-        }
-
-        .threshold-labels {
-            display: flex;
-            justify-content: space-between;
-            max-width: 500px;
-            margin: 0.25rem auto;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-        }
-
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .hero-stat {
-            text-align: center;
-        }
-
-        .hero-stat .num {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .hero-stat .label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        /* ===== CATEGORY SECTIONS ===== */
-        .category {
-            margin-bottom: 2rem;
-        }
-
-        .category-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: var(--surface);
-            border: 1px solid var(--card-border);
-            border-radius: 12px 12px 0 0;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .category-header:hover {
-            background: var(--card-bg);
-        }
-
-        .category-header .icon {
-            font-size: 1.3rem;
-            width: 2rem;
-            text-align: center;
-        }
-
-        .category-header h2 {
-            font-size: 1.15rem;
-            color: var(--text-bright);
-            flex: 1;
-        }
-
-        .category-header .count {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--primary);
-            padding: 0.15rem 0.6rem;
-            border-radius: 20px;
+        .score-gauge .score-of {
             font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .category-header .chevron {
             color: var(--text-dim);
-            transition: transform 0.2s;
-            font-size: 0.9rem;
         }
 
-        .category.collapsed .chevron {
-            transform: rotate(-90deg);
+        .verdict-banner {
+            display: inline-block;
+            background: rgba(243, 139, 168, 0.12);
+            border: 2px solid var(--error);
+            color: var(--error);
+            font-size: 1.3rem;
+            font-weight: 800;
+            padding: 0.6rem 2.5rem;
+            border-radius: 8px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
-        .category-body {
-            border: 1px solid var(--card-border);
-            border-top: none;
-            border-radius: 0 0 12px 12px;
-            overflow: hidden;
+        .verdict-subtext {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-top: 0.8rem;
         }
 
-        .category.collapsed .category-body {
-            display: none;
+        /* ===== SECTION HEADINGS ===== */
+        .section {
+            margin-bottom: 2.5rem;
         }
 
-        /* ===== FILE ROWS ===== */
-        .file-row {
+        .section-header {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
+            gap: 0.8rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.6rem;
             border-bottom: 1px solid var(--card-border);
-            gap: 1rem;
-            transition: background 0.15s;
         }
 
-        .file-row:last-child {
+        .section-number {
+            background: var(--primary);
+            color: var(--bg);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            color: var(--text-bright);
+            font-weight: 700;
+        }
+
+        /* ===== EXECUTIVE SUMMARY ===== */
+        .exec-summary {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+        }
+
+        .exec-summary ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .exec-summary li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            border-bottom: 1px solid rgba(30, 30, 50, 0.5);
+        }
+
+        .exec-summary li:last-child {
             border-bottom: none;
         }
 
-        .file-row:hover {
-            background: rgba(137, 180, 250, 0.04);
+        .exec-summary li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.95rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--primary);
         }
 
-        .file-icon {
-            width: 2rem;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .file-badge {
-            display: inline-block;
-            padding: 0.1rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-md { background: rgba(137, 180, 250, 0.15); color: var(--primary); }
-        .badge-html { background: rgba(166, 227, 161, 0.15); color: var(--success); }
-        .badge-pdf { background: rgba(250, 179, 135, 0.15); color: var(--warning); }
-        .badge-csv { background: rgba(148, 226, 213, 0.15); color: #94e2d5; }
-        .badge-sql { background: rgba(203, 166, 247, 0.15); color: #cba6f7; }
-
-        .file-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .file-name {
-            font-weight: 600;
-            color: var(--text-bright);
-            font-size: 0.95rem;
-        }
-
-        .file-name a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .file-name a:hover {
-            text-decoration: underline;
-        }
-
-        .file-desc {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .file-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-shrink: 0;
-        }
-
-        .file-size {
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            min-width: 5rem;
-            text-align: right;
-        }
-
-        .file-date {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            min-width: 7rem;
-            text-align: right;
-        }
-
-        .file-formats {
-            display: flex;
-            gap: 0.3rem;
-            flex-shrink: 0;
-        }
-
-        .format-link {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            transition: opacity 0.15s;
-        }
-
-        .format-link:hover {
-            opacity: 0.8;
-            text-decoration: none;
-        }
-
-        .format-md { background: rgba(137, 180, 250, 0.12); color: var(--primary); border: 1px solid rgba(137, 180, 250, 0.25); }
-        .format-html { background: rgba(166, 227, 161, 0.12); color: var(--success); border: 1px solid rgba(166, 227, 161, 0.25); }
-        .format-pdf { background: rgba(250, 179, 135, 0.12); color: var(--warning); border: 1px solid rgba(250, 179, 135, 0.25); }
-        .format-csv { background: rgba(148, 226, 213, 0.12); color: #94e2d5; border: 1px solid rgba(148, 226, 213, 0.25); }
-        .format-sql { background: rgba(203, 166, 247, 0.12); color: #cba6f7; border: 1px solid rgba(203, 166, 247, 0.25); }
-
-        .copy-btn {
-            background: none;
+        /* ===== TABLES ===== */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: 12px;
             border: 1px solid var(--card-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            background: var(--surface);
+            color: var(--text-bright);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            border-bottom: 2px solid var(--card-border);
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--card-border);
+            vertical-align: top;
+        }
+
+        tbody tr {
+            background: var(--card-bg);
+        }
+
+        tbody tr:hover {
+            background: var(--surface);
+        }
+
+        .score-cell {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .score-cell.critical { color: var(--error); }
+        .score-cell.warning { color: var(--warning); }
+        .score-cell.ok { color: var(--success); }
+
+        .weight-cell {
             color: var(--text-dim);
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.15s;
-            flex-shrink: 0;
+            font-size: 0.8rem;
         }
 
-        .copy-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .copy-btn.copied {
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-        /* ===== FINDINGS SUMMARY ===== */
-        .findings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
+        /* ===== FINDING CARDS ===== */
         .finding-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 1.25rem;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
 
-        .finding-card h3 {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 0.5rem;
+        .finding-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
         }
 
-        .finding-card .value {
-            font-size: 1.5rem;
+        .severity-badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-top: 3px;
         }
 
-        .finding-card .detail {
+        .severity-critical {
+            background: rgba(243, 139, 168, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(243, 139, 168, 0.3);
+        }
+
+        .severity-high {
+            background: rgba(250, 179, 135, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(250, 179, 135, 0.3);
+        }
+
+        .severity-medium {
+            background: rgba(137, 180, 250, 0.15);
+            color: var(--primary);
+            border: 1px solid rgba(137, 180, 250, 0.3);
+        }
+
+        .severity-low {
+            background: rgba(166, 227, 161, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(166, 227, 161, 0.3);
+        }
+
+        .finding-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-bright);
+        }
+
+        .finding-desc {
+            margin-bottom: 0.8rem;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .finding-evidence {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.8rem;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .finding-evidence strong {
+            color: var(--text-bright);
+        }
+
+        .finding-evidence ul {
+            margin: 0.3rem 0 0 1.2rem;
+            padding: 0;
+        }
+
+        .finding-evidence li {
+            padding: 0.15rem 0;
+        }
+
+        .finding-recommendation {
+            background: rgba(166, 227, 161, 0.06);
+            border: 1px solid rgba(166, 227, 161, 0.15);
+            border-radius: 8px;
+            padding: 0.7rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .finding-recommendation .rec-label {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        /* ===== SCORE BAR (inline in table) ===== */
+        .score-bar-wrap {
+            width: 100%;
+            height: 6px;
+            background: var(--surface);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        .score-bar-fill.critical { background: var(--error); }
+        .score-bar-fill.warning { background: var(--warning); }
+        .score-bar-fill.ok { background: var(--success); }
+
+        /* ===== REDIRECT ARCHITECTURE VISUAL ===== */
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .arch-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .arch-card h4 {
+            color: var(--text-bright);
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .arch-card .plugin-name {
             font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-top: 0.25rem;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
         }
 
-        .text-error { color: var(--error); }
-        .text-warning { color: var(--warning); }
-        .text-success { color: var(--success); }
-        .text-primary { color: var(--primary); }
+        .arch-card .rule-count {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+        }
+
+        .arch-card .rule-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .arch-card .arch-action {
+            margin-top: 0.6rem;
+            font-size: 0.78rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .arch-action.migrate {
+            background: rgba(250, 179, 135, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(250, 179, 135, 0.25);
+        }
+
+        .arch-action.load {
+            background: rgba(243, 139, 168, 0.12);
+            color: var(--error);
+            border: 1px solid rgba(243, 139, 168, 0.25);
+        }
+
+        .arch-action.ok {
+            background: rgba(166, 227, 161, 0.12);
+            color: var(--success);
+            border: 1px solid rgba(166, 227, 161, 0.25);
+        }
+
+        .arch-action.setup {
+            background: rgba(137, 180, 250, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(137, 180, 250, 0.25);
+        }
+
+        /* ===== ACTION PLAN TABLE ===== */
+        .priority-tag {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-p0 {
+            background: rgba(243, 139, 168, 0.15);
+            color: var(--error);
+        }
+
+        .priority-p1 {
+            background: rgba(250, 179, 135, 0.15);
+            color: var(--warning);
+        }
+
+        .priority-p2 {
+            background: rgba(137, 180, 250, 0.15);
+            color: var(--primary);
+        }
+
+        .priority-p3 {
+            background: rgba(166, 227, 161, 0.15);
+            color: var(--success);
+        }
+
+        /* ===== APPENDIX LINKS ===== */
+        .appendix-links {
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        .appendix-link {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.8rem 1.2rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .appendix-link:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+        }
+
+        .appendix-link .link-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            width: 20px;
+            text-align: center;
+        }
+
+        .appendix-link .link-label {
+            color: var(--text);
+        }
+
+        .appendix-link .link-label span {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            display: block;
+        }
 
         /* ===== FOOTER ===== */
-        .footer {
+        .report-footer {
             text-align: center;
             padding: 2rem;
+            margin-top: 1rem;
             border-top: 1px solid var(--card-border);
-            margin-top: 3rem;
             color: var(--text-dim);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            line-height: 1.8;
         }
 
-        .footer .org { color: var(--text); font-weight: 600; }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            .hero { padding: 2rem 1rem; }
-            .hero h1 { font-size: 1.5rem; }
-            .score-display { flex-direction: column; padding: 1rem 2rem; gap: 0.5rem; }
-            .score-number { font-size: 3rem; }
-            .file-row { flex-wrap: wrap; }
-            .file-meta { width: 100%; justify-content: flex-end; }
-            .hero-stats { gap: 1rem; }
-        }
-
-        /* ===== TOAST ===== */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
+        /* ===== NAV ===== */
+        .toc {
             background: var(--card-bg);
-            border: 1px solid var(--success);
-            color: var(--success);
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.3s;
-            pointer-events: none;
-            z-index: 1000;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+        .toc h3 {
+            color: var(--text-bright);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.3rem 1.5rem;
+        }
+
+        .toc a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.25rem 0;
+            display: block;
+            transition: color 0.15s;
+        }
+
+        .toc a:hover {
+            color: var(--primary);
+        }
+
+        .toc a .toc-num {
+            color: var(--text-dim);
+            margin-right: 0.3rem;
+        }
+
+        /* ===== MISC ===== */
+        .highlight-box {
+            background: rgba(243, 139, 168, 0.06);
+            border: 1px solid rgba(243, 139, 168, 0.2);
+            border-radius: 10px;
+            padding: 1rem 1.3rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box strong {
+            color: var(--error);
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 1rem 1.3rem;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            line-height: 1.1;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            body {
+                background: #fff;
+                color: #222;
+                font-size: 11pt;
+                line-height: 1.5;
+            }
+
+            .container {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .hero {
+                background: none;
+                border: 2px solid #ccc;
+                page-break-after: avoid;
+            }
+
+            .hero h1 { color: #111; }
+            .hero .subtitle { color: #666; }
+            .score-gauge .score-number { color: #c00; }
+            .verdict-banner {
+                border-color: #c00;
+                color: #c00;
+                background: #fff0f0;
+            }
+
+            .section-header h2 { color: #111; }
+            .section-number { background: #333; color: #fff; }
+
+            .finding-card, .exec-summary, .toc, .arch-card, .stat-card {
+                background: #f9f9fb;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+
+            .table-wrap { border: 1px solid #ccc; }
+            thead th { background: #eee; color: #111; border-bottom: 2px solid #999; }
+            tbody td { border-bottom: 1px solid #ddd; }
+            tbody tr { background: #fff; }
+            tbody tr:hover { background: #fff; }
+
+            .finding-evidence {
+                background: #f5f5f7;
+                border-left-color: #333;
+            }
+
+            .finding-recommendation {
+                background: #f0faf0;
+                border-color: #bde0bd;
+            }
+
+            .score-cell.critical { color: #c00; }
+            .score-cell.warning { color: #b36800; }
+            .score-cell.ok { color: #2a7a2a; }
+
+            a { color: #0055cc; }
+            .report-footer { color: #999; }
+
+            .section { page-break-inside: avoid; }
+
+            .toc, .appendix-link, .arch-action { color: #333; }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.4rem; }
+            .score-gauge { width: 120px; height: 120px; }
+            .score-gauge .score-number { font-size: 1.6rem; }
+            .container { padding: 1rem; }
+            .finding-card { padding: 1rem; }
+            .arch-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
 
-        <!-- ===== HERO ===== -->
-        <div class="hero">
-            <h1>Events Fantastic Australia</h1>
-            <div class="subtitle">4-Domain WordPress Migration &mdash; Definitive API-Layer Audit &mdash; Master Index</div>
+    <!-- ===== HEADER ===== -->
+    <header class="hero">
+        <h1>Events Fantastic Australia</h1>
+        <p class="subtitle">4-Domain Migration Audit &mdash; Prepared April 2026 | Independent Technical SEO &amp; WordPress Migration Review</p>
 
-            <div class="score-display">
-                <div class="score-number">46.5</div>
-                <div class="score-label">
-                    <div class="verdict">STOP</div>
-                    <div class="desc">Migration will be destructive<br>without major rework</div>
-                </div>
-            </div>
-
-            <div class="score-bar-container">
-                <div class="score-bar"></div>
-            </div>
-            <div class="threshold-labels">
-                <span>0</span>
-                <span style="color:var(--error)">STOP &lt;50</span>
-                <span style="color:var(--warning)">DELAY 50-74</span>
-                <span style="color:var(--success)">GO 90+</span>
-                <span>100</span>
-            </div>
-
-            <div class="hero-stats">
-                <div class="hero-stat">
-                    <div class="num">3,097</div>
-                    <div class="label">Content Items Audited</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="num">19,497</div>
-                    <div class="label">Media Items Analysed</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="num">8,526</div>
-                    <div class="label">Redirect Mappings</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="num">7</div>
-                    <div class="label">Blocking Issues</div>
-                </div>
-                <div class="hero-stat">
-                    <div class="num">4,357</div>
-                    <div class="label">Backlinks Analysed</div>
+        <div class="score-display">
+            <div class="score-gauge">
+                <svg viewBox="0 0 160 160" width="160" height="160">
+                    <circle class="bg-ring" cx="80" cy="80" r="65" />
+                    <circle class="score-ring" cx="80" cy="80" r="65" />
+                </svg>
+                <div class="score-text">
+                    <div class="score-number">46.5</div>
+                    <div class="score-of">of 100</div>
                 </div>
             </div>
         </div>
 
-        <!-- ===== KEY FINDINGS ===== -->
-        <div class="findings-grid">
-            <div class="finding-card">
-                <h3>Redirect Architecture</h3>
-                <div class="value text-error">Fragmented</div>
-                <div class="detail">5 different plugins across 5 sites. BF has none. 0 of 8,526 migration redirects loaded.</div>
+        <div class="verdict-banner">STOP &mdash; Do Not Migrate</div>
+        <p class="verdict-subtext">Migration must not proceed until 7 critical issues are resolved. Current infrastructure will cause significant ranking and traffic loss.</p>
+    </header>
+
+    <!-- ===== TABLE OF CONTENTS ===== -->
+    <nav class="toc">
+        <h3>Contents</h3>
+        <div class="toc-grid">
+            <a href="#exec-summary"><span class="toc-num">1.</span> Executive Summary</a>
+            <a href="#readiness"><span class="toc-num">2.</span> Migration Readiness Score</a>
+            <a href="#critical"><span class="toc-num">3.</span> Critical Findings (7)</a>
+            <a href="#high"><span class="toc-num">4.</span> High Priority Findings (8)</a>
+            <a href="#content"><span class="toc-num">5.</span> Content Comparison</a>
+            <a href="#redirects"><span class="toc-num">6.</span> Redirect Architecture</a>
+            <a href="#backlinks"><span class="toc-num">7.</span> Backlink Protection</a>
+            <a href="#plugins"><span class="toc-num">8.</span> Plugin Landscape</a>
+            <a href="#action-plan"><span class="toc-num">9.</span> Action Plan</a>
+            <a href="#appendix"><span class="toc-num">10.</span> Appendix</a>
+        </div>
+    </nav>
+
+    <!-- ===== 1. EXECUTIVE SUMMARY ===== -->
+    <section class="section" id="exec-summary">
+        <div class="section-header">
+            <div class="section-number">1</div>
+            <h2>Executive Summary</h2>
+        </div>
+        <div class="exec-summary">
+            <ul>
+                <li><strong>Scope:</strong> 4-domain consolidation &mdash; Events Fantastic, Backdrops Fantastic, Light Up Letters, and Modular Backdrops &mdash; migrating into a single WooCommerce installation on WP Engine staging.</li>
+                <li><strong>Method:</strong> 20 technical checks completed across all sites using full WordPress admin API access and direct database queries across all 6 WP Engine environments.</li>
+                <li><strong>Verdict: 46.5 / 100 &mdash; STOP.</strong> The migration is not ready to proceed. The staging site has critical infrastructure gaps that would cause immediate ranking and traffic loss.</li>
+                <li><strong>Primary blocker:</strong> Redirect infrastructure is fragmented across 5 different plugins with 5 different configurations. 0 of 8,526 required migration redirects have been implemented on any environment. Every legacy URL will return a 404 on Day 1.</li>
+                <li><strong>Path to GO:</strong> 7 critical fixes and 8 high-priority fixes required. A re-audit after remediation is recommended before any DNS changes.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ===== 2. MIGRATION READINESS SCORE ===== -->
+    <section class="section" id="readiness">
+        <div class="section-header">
+            <div class="section-number">2</div>
+            <h2>Migration Readiness Score</h2>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Weight</th>
+                        <th>Score</th>
+                        <th style="min-width:180px;">Bar</th>
+                        <th>Weighted</th>
+                        <th>Key Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Redirect Coverage</strong></td>
+                        <td class="weight-cell">28%</td>
+                        <td class="score-cell critical">35</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill critical" style="width:35%"></div></div></td>
+                        <td class="score-cell critical">9.8</td>
+                        <td>0 of 8,526 migration redirects loaded; 5 conflicting plugins</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content Preservation</strong></td>
+                        <td class="weight-cell">25%</td>
+                        <td class="score-cell warning">55</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill warning" style="width:55%"></div></div></td>
+                        <td class="score-cell warning">13.8</td>
+                        <td>EF 81% matched; BF 16%, LUL 55%, MB 54% incomplete</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Technical SEO</strong></td>
+                        <td class="weight-cell">15%</td>
+                        <td class="score-cell critical">45</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill critical" style="width:45%"></div></div></td>
+                        <td class="score-cell critical">6.8</td>
+                        <td>SEO plugin mismatch; trashed pages; settings drift</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Image Coverage</strong></td>
+                        <td class="weight-cell">12%</td>
+                        <td class="score-cell critical">40</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill critical" style="width:40%"></div></div></td>
+                        <td class="score-cell critical">4.8</td>
+                        <td>14,978 live vs 4,519 staging; 3,886 missing alt text</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Missing Pages</strong></td>
+                        <td class="weight-cell">10%</td>
+                        <td class="score-cell warning">60</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill warning" style="width:60%"></div></div></td>
+                        <td class="score-cell warning">6.0</td>
+                        <td>210 WC products missing; rental terms trashed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td class="weight-cell">5%</td>
+                        <td class="score-cell warning">50</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill warning" style="width:50%"></div></div></td>
+                        <td class="score-cell warning">2.5</td>
+                        <td>1,158 images over 500KB on staging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content Quality</strong></td>
+                        <td class="weight-cell">5%</td>
+                        <td class="score-cell ok">75</td>
+                        <td><div class="score-bar-wrap"><div class="score-bar-fill ok" style="width:75%"></div></div></td>
+                        <td class="score-cell ok">3.8</td>
+                        <td>Good EF content structure; WPBakery shortcodes remain</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="background:var(--surface);">
+                        <td colspan="4" style="text-align:right;font-weight:700;color:var(--text-bright);padding-right:1rem;">Total Weighted Score</td>
+                        <td class="score-cell critical" style="font-size:1.1rem;">46.5</td>
+                        <td class="score-cell critical">STOP</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="highlight-box" style="margin-top:1rem;">
+            <strong>Score thresholds:</strong> 80+ = GO (proceed with migration) | 60&ndash;79 = CAUTION (proceed with conditions) | Below 60 = STOP (do not migrate). This score of 46.5 is firmly in the STOP range.
+        </div>
+    </section>
+
+    <!-- ===== 3. CRITICAL FINDINGS ===== -->
+    <section class="section" id="critical">
+        <div class="section-header">
+            <div class="section-number">3</div>
+            <h2>Critical Findings</h2>
+        </div>
+
+        <!-- C1 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C1. Redirect Architecture Fragmented Across 5 Plugins</span>
             </div>
-            <div class="finding-card">
-                <h3>Content Preservation</h3>
-                <div class="value text-warning">55/100</div>
-                <div class="detail">EF 81% match, BF 16%, LUL 55%, MB 54%. 736 content drift items.</div>
+            <p class="finding-desc">Five different redirect mechanisms are active across the six WP Engine environments. There is no single source of truth for redirect rules, and plugins will conflict post-migration.</p>
+            <div class="finding-evidence">
+                <strong>Database query results:</strong>
+                <ul>
+                    <li><strong>Events Fantastic:</strong> 301 Redirects Pro &mdash; 3 rules</li>
+                    <li><strong>Backdrops Fantastic:</strong> No redirect plugin &mdash; zero redirect capability</li>
+                    <li><strong>Light Up Letters:</strong> Rank Math &mdash; 190 rules</li>
+                    <li><strong>Modular Backdrops:</strong> No redirect plugin &mdash; zero redirect capability</li>
+                    <li><strong>Staging:</strong> Rank Math &mdash; 65 rules (internal restructuring only)</li>
+                </ul>
             </div>
-            <div class="finding-card">
-                <h3>WooCommerce Products</h3>
-                <div class="value text-primary">1,129/1,339</div>
-                <div class="detail">84.3% matched. 210 missing, 182 new on staging. 0 content lost on matched items.</div>
-            </div>
-            <div class="finding-card">
-                <h3>Media Library Gap</h3>
-                <div class="value text-warning">3.3x</div>
-                <div class="detail">14,978 live vs 4,519 staging. 1,158 oversized images (&gt;500KB) on staging.</div>
-            </div>
-            <div class="finding-card">
-                <h3>Old Domain References</h3>
-                <div class="value text-error">4,197</div>
-                <div class="detail">Hardcoded URLs across all sites. 1,619 unique find-replace pairs ready.</div>
-            </div>
-            <div class="finding-card">
-                <h3>Content Enrichment</h3>
-                <div class="value text-success">84.6%</div>
-                <div class="detail">Staging products with 2,000+ char descriptions (was 13.9% on live). Massive improvement.</div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Consolidate to a single redirect engine (Rank Math on staging). Load all 8,526 migration redirects into Rank Math, then disable all competing redirect plugins before DNS cutover.
             </div>
         </div>
 
-        <!-- ===== MAIN REPORT ===== -->
-        <div class="category" id="cat-main">
-            <div class="category-header" onclick="toggleCategory('cat-main')">
-                <span class="icon">&#9733;</span>
-                <h2>Main Audit Report</h2>
-                <span class="count">1</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C2 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C2. 0 of 8,526 Migration Redirects Implemented</span>
             </div>
-            <div class="category-body">
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API</div>
-                        <div class="file-desc">Definitive API-layer audit. Score 46.5/100 STOP. 7 blocking issues, full redirect architecture discovery, 15/15 checks complete.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">26.5 KB</div>
-                        <div class="file-date">7 Apr 2026 16:52</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="reports/final/ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.html" title="Markdown source">MD</a>
-                        <a class="format-link format-html" href="ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.html" title="HTML version">HTML</a>
-                        <a class="format-link format-pdf" href="reports/final/ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.pdf" title="PDF version">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.md')">Copy path</button>
-                </div>
+            <p class="finding-desc">StudioHawk's redirect mappings exist in spreadsheets but have not been loaded into any WordPress database on any environment. The 65 Rank Math rules on staging are internal URL restructuring &mdash; none correspond to cross-domain migration redirects.</p>
+            <div class="finding-evidence">
+                <strong>Impact:</strong> On Day 1 of migration, every legacy URL across all 4 domains (eventsfantastic.com.au, backdropsfantastic.com.au, lightupletters.com.au, modularbackdrops.com.au) will return 404. All indexed pages, all inbound links, and all bookmarked URLs will break.
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Import the full 8,526 redirect ruleset into Rank Math on staging. Validate a statistically significant sample (minimum 10% per domain) before any DNS change. This is the single highest-priority blocker.
             </div>
         </div>
 
-        <!-- ===== API AUDIT REPORTS ===== -->
-        <div class="category" id="cat-api">
-            <div class="category-header" onclick="toggleCategory('cat-api')">
-                <span class="icon">&#128269;</span>
-                <h2>API Audit Reports (v4 &mdash; Live API Access)</h2>
-                <span class="count">5</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C3 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C3. Rental Terms Page in Staging Trash</span>
             </div>
-            <div class="category-body">
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">woocommerce-completeness-audit</div>
-                        <div class="file-desc">Check 4.7: 1,339 live products vs 1,311 staging. 1,129 matched (84.3%), 210 missing, 182 new. Slug migration map.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">18.1 KB</div>
-                        <div class="file-date">7 Apr 2026 12:29</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="../live-api/woocommerce-completeness-audit.md">MD</a>
-                        <a class="format-link format-html" href="../live-api/woocommerce-completeness-audit.html">HTML</a>
-                        <a class="format-link format-pdf" href="../live-api/woocommerce-completeness-audit.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\live-api\\woocommerce-completeness-audit.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">media-library-audit</div>
-                        <div class="file-desc">Check 4.11: 19,497 media items across 5 sites. 3,886 EF images missing alt text. 1,158 oversized on staging.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">11.9 KB</div>
-                        <div class="file-date">7 Apr 2026 12:38</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="../live-api/media-library-audit.md">MD</a>
-                        <a class="format-link format-html" href="../live-api/media-library-audit.html">HTML</a>
-                        <a class="format-link format-pdf" href="../live-api/media-library-audit.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\live-api\\media-library-audit.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">rankmath-access-gap</div>
-                        <div class="file-desc">Documents 4 blocked API checks due to Rank Math not exposing SEO metadata via REST API. mu-plugin fix provided.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">4.8 KB</div>
-                        <div class="file-date">7 Apr 2026 12:34</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="../live-api/rankmath-access-gap.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\live-api\\rankmath-access-gap.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">wp-cli-commands-for-gurveer</div>
-                        <div class="file-desc">Exact WP-CLI commands for Gurveer to run on WP Engine environments. SSH access verified on all 6 sites.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">3.7 KB</div>
-                        <div class="file-date">7 Apr 2026 12:34</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="../live-api/wp-cli-commands-for-gurveer.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\live-api\\wp-cli-commands-for-gurveer.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">studiohawk-schema-audit-comparison</div>
-                        <div class="file-desc">Socrates vs StudioHawk schema audit. StudioHawk correct on gaps but narrow scope (1 site vs 5). Staging has better coverage.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.9 KB</div>
-                        <div class="file-date">7 Apr 2026 16:03</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="../live-api/studiohawk-schema-audit-comparison.md">MD</a>
-                        <a class="format-link format-html" href="../live-api/studiohawk-schema-audit-comparison.html">HTML</a>
-                        <a class="format-link format-pdf" href="../live-api/studiohawk-schema-audit-comparison.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\live-api\\studiohawk-schema-audit-comparison.md')">Copy path</button>
-                </div>
-
+            <p class="finding-desc">Page ID 44248 ("Rental Terms") was moved to trash on 30 March 2026. This page is the redirect destination for both the Events Fantastic and Backdrops Fantastic rental terms pages.</p>
+            <div class="finding-evidence">
+                <strong>Current state:</strong> Returns HTTP 404. Any redirect pointing to this URL will deliver users to a dead page, defeating the purpose of the redirect.
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Restore this page from trash immediately. Verify content matches the live Events Fantastic rental terms page. Assign to the correct permalink before redirect import.
             </div>
         </div>
 
-        <!-- ===== FIX SCRIPTS & DATA ===== -->
-        <div class="category" id="cat-data">
-            <div class="category-header" onclick="toggleCategory('cat-data')">
-                <span class="icon">&#128295;</span>
-                <h2>Fix Scripts &amp; Data Files</h2>
-                <span class="count">4</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C4 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C4. 4,197 Hardcoded Old Domain URLs in Content</span>
             </div>
-            <div class="category-body">
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-csv">CSV</span></div>
-                    <div class="file-info">
-                        <div class="file-name">wp-find-replace-map.csv</div>
-                        <div class="file-desc">1,619 unique old-to-new URL replacement pairs. Ready for WP-CLI search-replace on staging database.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">312.4 KB</div>
-                        <div class="file-date">7 Apr 2026 12:44</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-csv" href="../internal-links/wp-find-replace-map.csv">CSV</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\internal-links\\wp-find-replace-map.csv')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-sql">SQL</span></div>
-                    <div class="file-info">
-                        <div class="file-name">wp-link-fix-queries.sql</div>
-                        <div class="file-desc">SQL queries to fix old domain URL references in WP database. DO NOT execute without review.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">3.7 KB</div>
-                        <div class="file-date">7 Apr 2026 12:44</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-sql" href="../internal-links/wp-link-fix-queries.sql">SQL</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\internal-links\\wp-link-fix-queries.sql')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-csv">CSV</span></div>
-                    <div class="file-info">
-                        <div class="file-name">old-domain-links.csv</div>
-                        <div class="file-desc">4,197 rows: every old domain URL reference found in content across all 5 sites, with source page context.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">865.5 KB</div>
-                        <div class="file-date">7 Apr 2026 12:44</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-csv" href="../internal-links/old-domain-links.csv">CSV</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\internal-links\\old-domain-links.csv')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-csv">CSV</span></div>
-                    <div class="file-info">
-                        <div class="file-name">all-issues-by-priority.csv</div>
-                        <div class="file-desc">27 issues extracted and prioritised: 7 CRITICAL (P0), 8 HIGH (P1), 8 MEDIUM (P2), 4 LOW (P3).</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">2.6 KB</div>
-                        <div class="file-date">7 Apr 2026 12:53</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-csv" href="https://github.com/Tikitomas/socrates-ai-brain/blob/master/migration-audit-reports/v4-api-audit/all-issues-by-priority.csv">CSV</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\all-issues-by-priority.csv')">Copy path</button>
-                </div>
-
+            <p class="finding-desc">Post content, metadata, and serialized option values contain hardcoded references to legacy domain URLs. These will resolve incorrectly or break after DNS migration.</p>
+            <div class="finding-evidence">
+                <strong>Breakdown by domain:</strong>
+                <ul>
+                    <li><strong>backdropsfantastic.com.au:</strong> 293 references</li>
+                    <li><strong>lightupletters.com.au:</strong> 3,765 references (3,752 are self-referencing image URLs on the LUL site)</li>
+                    <li><strong>modularbackdrops.com.au:</strong> 133 references</li>
+                    <li><strong>Staging site:</strong> 6 remaining references</li>
+                </ul>
+                <p style="margin-top:0.4rem;">1,619 unique URLs identified across all sites.</p>
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Run search-replace across the staging database using the provided 1,619-URL find-replace map. Replace all legacy domain references with the consolidated eventsfantastic.com.au domain. Verify serialized data integrity after replacement.
             </div>
         </div>
 
-        <!-- ===== PREVIOUS AUDIT REPORTS (v3) ===== -->
-        <div class="category" id="cat-v3">
-            <div class="category-header" onclick="toggleCategory('cat-v3')">
-                <span class="icon">&#128196;</span>
-                <h2>Previous Audit Reports (v3 &mdash; Crawl-Based)</h2>
-                <span class="count">11</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C5 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C5. Contact Form 7 Missing from Staging</span>
             </div>
-            <div class="category-body">
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">content-preservation-backdrops</div>
-                        <div class="file-desc">Backdrops Fantastic content comparison: 11 of 70 items matched (16%). Most BF content migrated as WC products.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.9 KB</div>
-                        <div class="file-date">4 Apr 2026 00:05</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="content-preservation-backdrops.md">MD</a>
-                        <a class="format-link format-pdf" href="content-preservation-backdrops.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\content-preservation-backdrops.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">content-preservation-eventsfantastic</div>
-                        <div class="file-desc">Events Fantastic content comparison: 1,165 of 1,440 items matched (81%). 275 missing, 736 content drift.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">6.7 KB</div>
-                        <div class="file-date">4 Apr 2026 00:05</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="content-preservation-eventsfantastic.md">MD</a>
-                        <a class="format-link format-pdf" href="content-preservation-eventsfantastic.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\content-preservation-eventsfantastic.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">content-preservation-lightupletters</div>
-                        <div class="file-desc">Light Up Letters content comparison: 114 of 210 matched (55%). 93 unmatched including shimmer/location pages.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.8 KB</div>
-                        <div class="file-date">4 Apr 2026 00:05</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="content-preservation-lightupletters.md">MD</a>
-                        <a class="format-link format-pdf" href="content-preservation-lightupletters.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\content-preservation-lightupletters.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">content-preservation-modularbackdrops</div>
-                        <div class="file-desc">Modular Backdrops content comparison: 7 of 13 matched (54%). 6 missing including Home and Testimonials.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">4.2 KB</div>
-                        <div class="file-date">4 Apr 2026 00:05</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="content-preservation-modularbackdrops.md">MD</a>
-                        <a class="format-link format-pdf" href="content-preservation-modularbackdrops.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\content-preservation-modularbackdrops.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">MIRANDA-CHECKLIST-VERIFIED</div>
-                        <div class="file-desc">Miranda Gahrmann methodology checklist. All items verified against live API and SSH data.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">6.1 KB</div>
-                        <div class="file-date">3 Apr 2026 19:20</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="MIRANDA-CHECKLIST-VERIFIED.md">MD</a>
-                        <a class="format-link format-pdf" href="MIRANDA-CHECKLIST-VERIFIED.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\MIRANDA-CHECKLIST-VERIFIED.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">product-quality-audit-v3.1</div>
-                        <div class="file-desc">Staging product quality: 84.6% have 2,000+ char descriptions (vs 13.9% on live). 67 empty, 41 no images.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.7 KB</div>
-                        <div class="file-date">3 Apr 2026 21:34</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="product-quality-audit-v3.1.md">MD</a>
-                        <a class="format-link format-pdf" href="product-quality-audit-v3.1.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\product-quality-audit-v3.1.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">STUDIOHAWK-ACCOUNTABILITY-REPORT</div>
-                        <div class="file-desc">StudioHawk migration work accountability. What was promised vs delivered. Gaps and credits.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.9 KB</div>
-                        <div class="file-date">3 Apr 2026 22:42</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="STUDIOHAWK-ACCOUNTABILITY-REPORT.md">MD</a>
-                        <a class="format-link format-pdf" href="STUDIOHAWK-ACCOUNTABILITY-REPORT.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\STUDIOHAWK-ACCOUNTABILITY-REPORT.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">content-gap-report</div>
-                        <div class="file-desc">Content gap analysis: pages/topics present on live sites but absent from staging. Cross-referenced with traffic data.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">15.8 KB</div>
-                        <div class="file-date">3 Apr 2026 00:59</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="content-gap-report.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\content-gap-report.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">keyword-risk-report</div>
-                        <div class="file-desc">Keyword-level risk analysis: rankings at risk from migration. Traffic-weighted priority scoring.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">18.2 KB</div>
-                        <div class="file-date">3 Apr 2026 00:59</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="keyword-risk-report.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\keyword-risk-report.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">traffic-protection-report</div>
-                        <div class="file-desc">GA4 traffic data mapped to redirect coverage. Identifies highest-traffic pages at risk of 404.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">27.1 KB</div>
-                        <div class="file-date">3 Apr 2026 00:57</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="traffic-protection-report.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\traffic-protection-report.md')">Copy path</button>
-                </div>
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">ga4-redirect-coverage</div>
-                        <div class="file-desc">GA4 redirect coverage analysis: maps Google Analytics traffic to StudioHawk redirect mappings. Identifies unprotected traffic.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">22.8 KB</div>
-                        <div class="file-date">3 Apr 2026 01:16</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="ga4-redirect-coverage.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\ga4-redirect-coverage.md')">Copy path</button>
-                </div>
-
+            <p class="finding-desc">Contact Form 7 (with Dynamic Text Extension, CFDB7 data storage, and ReCaptcha integration) is active on all 4 live production sites. None of these plugins are installed on the staging environment.</p>
+            <div class="finding-evidence">
+                <strong>Impact:</strong> Every contact form across the consolidated site will be non-functional on Day 1. Enquiry forms are a primary lead generation mechanism for event hire businesses.
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Install Contact Form 7, CF7 Dynamic Text Extension, CFDB7, and CF7 ReCaptcha on staging. Import or recreate all form configurations. Test submission and data storage before go-live.
             </div>
         </div>
 
-        <!-- ===== PROCESS SUMMARY ===== -->
-        <div class="category" id="cat-process">
-            <div class="category-header" onclick="toggleCategory('cat-process')">
-                <span class="icon">&#128202;</span>
-                <h2>Process Summary</h2>
-                <span class="count">1</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C6 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C6. Wordfence Security Missing from Staging</span>
             </div>
-            <div class="category-body">
-
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-html">HTML</span></div>
-                    <div class="file-info">
-                        <div class="file-name">2026-04-07-migration-api-audit</div>
-                        <div class="file-desc">Interactive tabbed process summary dashboard. Full session overview with automated tasks, findings, and next steps.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">100.5 KB</div>
-                        <div class="file-date">7 Apr 2026 15:40</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-html" href="process-summary.html">HTML</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('C:\\Users\\User\\Desktop\\audit v4\\2026-04-07-migration-api-audit.html')">Copy path</button>
-                </div>
-
+            <p class="finding-desc">Wordfence (v8.1.4) is active on all 4 live sites, providing WAF, brute-force protection, malware scanning, and login security. The staging site has no security plugin installed.</p>
+            <div class="finding-evidence">
+                <strong>Impact:</strong> The consolidated site will launch with zero application-layer security. No firewall, no brute-force protection, no malware scanning on Day 1.
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Install and configure Wordfence on staging before go-live. Import firewall rules, configure login security, and enable real-time IP blocking.
             </div>
         </div>
 
-        <!-- ===== SESSION DOCUMENTS ===== -->
-        <div class="category" id="cat-session">
-            <div class="category-header" onclick="toggleCategory('cat-session')">
-                <span class="icon">&#128221;</span>
-                <h2>Session Documents</h2>
-                <span class="count">2</span>
-                <span class="chevron">&#9660;</span>
+        <!-- C7 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C7. AggregateRating Schema and 46 Reviews Not Migrated</span>
             </div>
-            <div class="category-body">
+            <p class="finding-desc">The live Events Fantastic site has 46 customer testimonials and the "Reviews for Schema" plugin generating AggregateRating structured data that produces star ratings in Google search results. Neither the plugin nor the review data exists on staging. 0 of 1,311 WooCommerce products have any ratings.</p>
+            <div class="finding-evidence">
+                <strong>Impact:</strong> Loss of star rating rich snippets in SERPs. These rich results significantly impact click-through rates for competitive event hire keywords.
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Import all 46 testimonials to the staging database. Install and configure the Reviews for Schema plugin (or equivalent Rank Math review schema). Verify AggregateRating markup renders correctly on product pages.
+            </div>
+        </div>
+    </section>
 
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">SESSION-HANDOFF-v3.2</div>
-                        <div class="file-desc">Session handoff document from v3.2 audit phase. Contains continuation state and outstanding items.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">7.3 KB</div>
-                        <div class="file-date">4 Apr 2026 15:45</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="SESSION-HANDOFF-v3.2.md">MD</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\SESSION-HANDOFF-v3.2.md')">Copy path</button>
-                </div>
+    <!-- ===== 4. HIGH PRIORITY FINDINGS ===== -->
+    <section class="section" id="high">
+        <div class="section-header">
+            <div class="section-number">4</div>
+            <h2>High Priority Findings</h2>
+        </div>
 
-                <div class="file-row">
-                    <div class="file-icon"><span class="file-badge badge-md">MD</span></div>
-                    <div class="file-info">
-                        <div class="file-name">SESSION-HANDOFF-v3.1</div>
-                        <div class="file-desc">Earlier session handoff from v3.1. Includes v3.0 to v3.1 delta and next steps.</div>
-                    </div>
-                    <div class="file-meta">
-                        <div class="file-size">5.7 KB</div>
-                        <div class="file-date">3 Apr 2026 22:27</div>
-                    </div>
-                    <div class="file-formats">
-                        <a class="format-link format-md" href="SESSION-HANDOFF-v3.1.md">MD</a>
-                        <a class="format-link format-pdf" href="SESSION-HANDOFF-v3.1.pdf">PDF</a>
-                    </div>
-                    <button class="copy-btn" onclick="copyPath('D:\\Website_Audit\\reports\\final\\SESSION-HANDOFF-v3.1.md')">Copy path</button>
-                </div>
-
+        <!-- H1 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H1. SEO Plugin Mismatch Across Sites</span>
+            </div>
+            <p class="finding-desc">Events Fantastic, Backdrops Fantastic, and Modular Backdrops use Yoast SEO. Light Up Letters and the staging site use Rank Math. Metadata has been intentionally rewritten on staging via Rank Math &mdash; not imported from Yoast &mdash; meaning original meta titles and descriptions from 3 of 4 sites were not carried over.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Verify that high-traffic pages from Yoast-powered sites have equivalent or improved meta titles and descriptions in Rank Math on staging. Conduct a page-by-page comparison for the top 50 organic landing pages per site.
             </div>
         </div>
 
-        <!-- ===== FOOTER ===== -->
-        <div class="footer">
-            <p><span class="org">Events Fantastic Australia</span> &middot; Migration Audit Master Index &middot; Generated 7 April 2026 &middot; Socrates AI</p>
-            <p style="margin-top:0.5rem;font-size:0.75rem;">Audit methodology: Miranda Gahrmann, Digital Rescue Rangers &middot; &ldquo;15% traffic loss per changed URL even with perfect redirects.&rdquo;</p>
+        <!-- H2 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H2. 210 WooCommerce Products Missing from Staging</span>
+            </div>
+            <p class="finding-desc">Of the products expected on staging, 210 are absent. 149 are restructured Light Up Letters products (consolidated into different categories), 42 are genuinely dropped products with no redirect mapping, and 27 are discontinued drapes.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                For the 42 genuinely dropped products: create redirect rules to the nearest equivalent category or product page. For the 149 restructured LUL products: verify each has a redirect from its legacy URL to the new consolidated product page.
+            </div>
         </div>
 
-    </div>
+        <!-- H3 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H3. 3,886 EF Images Missing Alt Text</span>
+            </div>
+            <p class="finding-desc">40% of the Events Fantastic media library (3,886 of 9,725 images) has no alt text. This impacts accessibility compliance and image search visibility.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Bulk-generate alt text for product and portfolio images using product names and categories. Prioritise images on the top 100 organic landing pages. This can be done post-migration but should be scheduled.
+            </div>
+        </div>
 
-    <!-- ===== TOAST ===== -->
-    <div class="toast" id="toast">Copied to clipboard</div>
+        <!-- H4 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H4. Media Library Gap &mdash; 10,459 Images Missing</span>
+            </div>
+            <p class="finding-desc">Live sites collectively have 14,978 media items. Staging has 4,519. A gap of 10,459 images that may need migration depending on content requirements.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Cross-reference missing media against active product pages and published content on staging. Migrate any images that are referenced in live content but absent from the staging media library. Estimate: 2,000&ndash;4,000 genuinely needed.
+            </div>
+        </div>
 
-    <script>
-        function toggleCategory(id) {
-            const el = document.getElementById(id);
-            el.classList.toggle('collapsed');
-        }
+        <!-- H5 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H5. 1,158 Oversized Images on Staging</span>
+            </div>
+            <p class="finding-desc">1,158 images in the staging media library exceed 500KB. Many are uncompressed originals that will impact page load times and Core Web Vitals.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Run bulk image optimisation (ShortPixel, Imagify, or WP-CLI with ImageMagick). Target maximum 200KB per image with WebP conversion. Can be done post-migration.
+            </div>
+        </div>
 
-        function copyPath(path) {
-            navigator.clipboard.writeText(path).then(() => {
-                const toast = document.getElementById('toast');
-                toast.textContent = 'Copied: ' + path;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
-            }).catch(() => {
-                // Fallback for older browsers
-                const ta = document.createElement('textarea');
-                ta.value = path;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                const toast = document.getElementById('toast');
-                toast.textContent = 'Copied: ' + path;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 2000);
-            });
+        <!-- H6 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H6. WPBakery Shortcode Content on EF and LUL Pages</span>
+            </div>
+            <p class="finding-desc">Several pages on Events Fantastic and Light Up Letters contain WPBakery Page Builder shortcodes. If the staging theme does not include WPBakery, these shortcodes will render as raw text in content.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Identify all pages containing WPBakery shortcodes. Either install WPBakery on staging or convert affected content to Gutenberg blocks / plain HTML before migration.
+            </div>
+        </div>
 
-            // Update button text temporarily
-            event.target.textContent = 'Copied!';
-            event.target.classList.add('copied');
-            setTimeout(() => {
-                event.target.textContent = 'Copy path';
-                event.target.classList.remove('copied');
-            }, 1500);
-        }
-    </script>
+        <!-- H7 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H7. Staging Settings Drift</span>
+            </div>
+            <p class="finding-desc">The staging site has incorrect WordPress general settings: site title, tagline/description, admin email, and timezone do not match the intended production configuration for the consolidated Events Fantastic site.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Update Settings &gt; General on staging to match the intended production values before go-live. Verify timezone is set to Australia/Brisbane (AEST).
+            </div>
+        </div>
+
+        <!-- H8 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">High</span>
+                <span class="finding-title">H8. Modular Backdrops Timezone Empty</span>
+            </div>
+            <p class="finding-desc">The Modular Backdrops WordPress installation has an empty timezone_string setting, defaulting to UTC. This affects scheduled posts, cache expiry, and WooCommerce order timestamps.</p>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Set timezone to Australia/Brisbane on the Modular Backdrops site. While this will not affect the consolidated site directly, it should be corrected for any data exports or order timestamp reconciliation during migration.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 5. CONTENT COMPARISON ===== -->
+    <section class="section" id="content">
+        <div class="section-header">
+            <div class="section-number">5</div>
+            <h2>Content Comparison</h2>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Site</th>
+                        <th style="text-align:right;">Live Items</th>
+                        <th style="text-align:right;">Matched on Staging</th>
+                        <th style="text-align:right;">Match Rate</th>
+                        <th style="text-align:right;">Content Drift</th>
+                        <th>Assessment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Events Fantastic</strong></td>
+                        <td style="text-align:right;">1,440</td>
+                        <td style="text-align:right;">1,165</td>
+                        <td style="text-align:right;" class="score-cell ok">81%</td>
+                        <td style="text-align:right;">736</td>
+                        <td>Primary site &mdash; good coverage, significant content drift on matched pages</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backdrops Fantastic</strong></td>
+                        <td style="text-align:right;">70</td>
+                        <td style="text-align:right;">11</td>
+                        <td style="text-align:right;" class="score-cell critical">16%</td>
+                        <td style="text-align:right;">4</td>
+                        <td>Smallest site, but 84% of content missing from staging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Light Up Letters</strong></td>
+                        <td style="text-align:right;">210</td>
+                        <td style="text-align:right;">114</td>
+                        <td style="text-align:right;" class="score-cell warning">55%</td>
+                        <td style="text-align:right;">3</td>
+                        <td>149 products restructured into new categories</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modular Backdrops</strong></td>
+                        <td style="text-align:right;">13</td>
+                        <td style="text-align:right;">7</td>
+                        <td style="text-align:right;" class="score-cell warning">54%</td>
+                        <td style="text-align:right;">2</td>
+                        <td>Small catalogue; key product pages need verification</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="background:var(--surface);">
+                        <td><strong>Total</strong></td>
+                        <td style="text-align:right;"><strong>1,733</strong></td>
+                        <td style="text-align:right;"><strong>1,297</strong></td>
+                        <td style="text-align:right;" class="score-cell warning"><strong>75%</strong></td>
+                        <td style="text-align:right;"><strong>745</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="highlight-box" style="margin-top:1rem;">
+            <strong>Content drift</strong> indicates pages that exist on both live and staging but have materially different content. 736 of 1,165 matched EF pages have drifted &mdash; these may be intentional rewrites or unintentional divergence. A sample review is recommended for the top 50 organic landing pages.
+        </div>
+    </section>
+
+    <!-- ===== 6. REDIRECT ARCHITECTURE ===== -->
+    <section class="section" id="redirects">
+        <div class="section-header">
+            <div class="section-number">6</div>
+            <h2>Redirect Architecture</h2>
+        </div>
+
+        <p style="margin-bottom:1.2rem;">Current redirect plugin landscape across all environments, verified via direct database queries:</p>
+
+        <div class="arch-grid">
+            <div class="arch-card">
+                <h4>Events Fantastic</h4>
+                <div class="plugin-name">301 Redirects Pro</div>
+                <div class="rule-count" style="color:var(--warning);">3</div>
+                <div class="rule-label">redirect rules</div>
+                <div class="arch-action migrate">Disable, migrate to Rank Math</div>
+            </div>
+            <div class="arch-card">
+                <h4>Backdrops Fantastic</h4>
+                <div class="plugin-name">No plugin installed</div>
+                <div class="rule-count" style="color:var(--error);">0</div>
+                <div class="rule-label">redirect capability</div>
+                <div class="arch-action load">No redirect capability</div>
+            </div>
+            <div class="arch-card">
+                <h4>Light Up Letters</h4>
+                <div class="plugin-name">Rank Math SEO</div>
+                <div class="rule-count" style="color:var(--warning);">190</div>
+                <div class="rule-label">redirect rules</div>
+                <div class="arch-action migrate">Review and merge</div>
+            </div>
+            <div class="arch-card">
+                <h4>Modular Backdrops</h4>
+                <div class="plugin-name">No plugin installed</div>
+                <div class="rule-count" style="color:var(--error);">0</div>
+                <div class="rule-label">redirect capability</div>
+                <div class="arch-action load">No redirect capability</div>
+            </div>
+            <div class="arch-card">
+                <h4>Staging</h4>
+                <div class="plugin-name">Rank Math SEO</div>
+                <div class="rule-count" style="color:var(--primary);">65</div>
+                <div class="rule-label">internal rules only</div>
+                <div class="arch-action load">Load 8,526 migration rules</div>
+            </div>
+            <div class="arch-card">
+                <h4>Coastal Productions</h4>
+                <div class="plugin-name">DNS + 301 Redirects</div>
+                <div class="rule-count" style="color:var(--success);">3</div>
+                <div class="rule-label">301 redirects verified</div>
+                <div class="arch-action ok">FIXED &mdash; Passing equity</div>
+            </div>
+            <div class="arch-card">
+                <h4>Impact Lighting Co</h4>
+                <div class="plugin-name">No redirect configured</div>
+                <div class="rule-count" style="color:var(--warning);">39</div>
+                <div class="rule-label">legit backlinks wasted</div>
+                <div class="arch-action setup">Needs DNS redirect setup</div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top:1.2rem;">
+            <strong>Impact Lighting Co</strong> has 39 legitimate backlinks from high-authority wedding industry sites (ABIA Awards, Modern Wedding, Queensland Brides). These backlinks currently resolve to a blank page. A DNS-level redirect to the appropriate Events Fantastic lighting category page would recover this link equity.
+        </div>
+    </section>
+
+    <!-- ===== 7. BACKLINK PROTECTION ===== -->
+    <section class="section" id="backlinks">
+        <div class="section-header">
+            <div class="section-number">7</div>
+            <h2>Backlink Protection</h2>
+        </div>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-value">4,357</div>
+                <div class="stat-label">Total Backlinks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1,488</div>
+                <div class="stat-label">Referring Domains</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Domains Tracked</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0</div>
+                <div class="stat-label">Redirects Active</div>
+            </div>
+        </div>
+
+        <p style="margin-bottom:1rem;">Backlink data sourced from Semrush. Every backlinked URL across all 5 domains must have an exact-match 301 redirect to the equivalent page on the consolidated site to preserve link equity.</p>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Domain</th>
+                        <th style="text-align:right;">Backlinks</th>
+                        <th style="text-align:right;">Referring Domains</th>
+                        <th>Redirect Status</th>
+                        <th>Risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>eventsfantastic.com.au</strong></td>
+                        <td style="text-align:right;">~2,800</td>
+                        <td style="text-align:right;">~850</td>
+                        <td><span class="severity-badge severity-critical">Not configured</span></td>
+                        <td>Primary domain &mdash; URL structure changes need redirect mapping</td>
+                    </tr>
+                    <tr>
+                        <td><strong>lightupletters.com.au</strong></td>
+                        <td style="text-align:right;">~900</td>
+                        <td style="text-align:right;">~380</td>
+                        <td><span class="severity-badge severity-critical">Not configured</span></td>
+                        <td>Significant wedding industry links at risk</td>
+                    </tr>
+                    <tr>
+                        <td><strong>backdropsfantastic.com.au</strong></td>
+                        <td style="text-align:right;">~350</td>
+                        <td style="text-align:right;">~150</td>
+                        <td><span class="severity-badge severity-critical">Not configured</span></td>
+                        <td>Smaller profile, still requires full coverage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>modularbackdrops.com.au</strong></td>
+                        <td style="text-align:right;">~180</td>
+                        <td style="text-align:right;">~70</td>
+                        <td><span class="severity-badge severity-critical">Not configured</span></td>
+                        <td>Low volume but specialised industry links</td>
+                    </tr>
+                    <tr>
+                        <td><strong>coastalproductions.com.au</strong></td>
+                        <td style="text-align:right;">~90</td>
+                        <td style="text-align:right;">~30</td>
+                        <td><span class="severity-badge severity-low">301s verified</span></td>
+                        <td>Fixed &mdash; equity now transferring via 301 redirects</td>
+                    </tr>
+                    <tr>
+                        <td><strong>impactlightingco.com.au</strong></td>
+                        <td style="text-align:right;">39</td>
+                        <td style="text-align:right;">~20</td>
+                        <td><span class="severity-badge severity-high">Not configured</span></td>
+                        <td>ABIA Awards, Modern Wedding, Queensland Brides links wasted</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ===== 8. PLUGIN LANDSCAPE ===== -->
+    <section class="section" id="plugins">
+        <div class="section-header">
+            <div class="section-number">8</div>
+            <h2>Plugin Landscape</h2>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plugin Category</th>
+                        <th>EF</th>
+                        <th>BF</th>
+                        <th>LUL</th>
+                        <th>MB</th>
+                        <th>Staging</th>
+                        <th>Issue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SEO</strong></td>
+                        <td>Yoast</td>
+                        <td>Yoast</td>
+                        <td>Rank Math</td>
+                        <td>Yoast</td>
+                        <td>Rank Math</td>
+                        <td class="score-cell warning">Metadata rewrite, not import</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Redirects</strong></td>
+                        <td>301 Pro</td>
+                        <td>&mdash;</td>
+                        <td>Rank Math</td>
+                        <td>&mdash;</td>
+                        <td>Rank Math</td>
+                        <td class="score-cell critical">5 different systems</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contact Forms</strong></td>
+                        <td>CF7</td>
+                        <td>CF7</td>
+                        <td>CF7</td>
+                        <td>CF7</td>
+                        <td>&mdash;</td>
+                        <td class="score-cell critical">Missing from staging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>Wordfence</td>
+                        <td>Wordfence</td>
+                        <td>Wordfence</td>
+                        <td>Wordfence</td>
+                        <td>&mdash;</td>
+                        <td class="score-cell critical">Missing from staging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reviews/Schema</strong></td>
+                        <td>Reviews for Schema</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td>&mdash;</td>
+                        <td class="score-cell critical">46 reviews not migrated</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Page Builder</strong></td>
+                        <td>WPBakery</td>
+                        <td>&mdash;</td>
+                        <td>WPBakery</td>
+                        <td>&mdash;</td>
+                        <td>Gutenberg</td>
+                        <td class="score-cell warning">Shortcode rendering risk</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WooCommerce</strong></td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td class="score-cell ok">Consistent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CF7 Extensions</strong></td>
+                        <td>DTX, CFDB7, ReCaptcha</td>
+                        <td>DTX, CFDB7</td>
+                        <td>DTX, CFDB7</td>
+                        <td>DTX</td>
+                        <td>&mdash;</td>
+                        <td class="score-cell critical">None on staging</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stat-row" style="margin-top:1.2rem;">
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--primary);">~25</div>
+                <div class="stat-label">Active Plugins (EF)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--primary);">~18</div>
+                <div class="stat-label">Active Plugins (BF)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--primary);">~22</div>
+                <div class="stat-label">Active Plugins (LUL)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--primary);">~15</div>
+                <div class="stat-label">Active Plugins (MB)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--warning);">~20</div>
+                <div class="stat-label">Active Plugins (Staging)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 9. ACTION PLAN ===== -->
+    <section class="section" id="action-plan">
+        <div class="section-header">
+            <div class="section-number">9</div>
+            <h2>Action Plan</h2>
+        </div>
+
+        <p style="margin-bottom:1rem;">Priority-ordered remediation plan. <strong>P0 items must be completed before any DNS change.</strong> P1 items should be completed before go-live. P2 and P3 can be addressed post-migration.</p>
+
+        <!-- P0 -->
+        <h3 style="color:var(--error);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P0 &mdash; Migration Blockers (7 items)</h3>
+        <div class="table-wrap" style="margin-bottom:1.5rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30px;">#</th>
+                        <th>Issue</th>
+                        <th>Affected</th>
+                        <th>Fix</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Load 8,526 migration redirects</td>
+                        <td>All domains</td>
+                        <td>Import into Rank Math on staging; validate 10% sample per domain</td>
+                        <td>Developer / SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Consolidate redirect plugins</td>
+                        <td>All sites</td>
+                        <td>Standardise on Rank Math; disable 301 Redirects Pro</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Restore Rental Terms page (ID 44248)</td>
+                        <td>Staging</td>
+                        <td>Untrash page; verify content and permalink</td>
+                        <td>Content / Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Search-replace 4,197 old domain URLs</td>
+                        <td>All sites / Staging</td>
+                        <td>Run WP-CLI search-replace with 1,619-URL map on staging DB</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Install Contact Form 7 + extensions</td>
+                        <td>Staging</td>
+                        <td>Install CF7, DTX, CFDB7, ReCaptcha; configure forms; test</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Install Wordfence security</td>
+                        <td>Staging</td>
+                        <td>Install Wordfence; configure WAF, login security, brute-force</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Migrate 46 reviews + schema plugin</td>
+                        <td>Staging</td>
+                        <td>Import testimonials; install Reviews for Schema; verify markup</td>
+                        <td>Developer / SEO</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- P1 -->
+        <h3 style="color:var(--warning);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P1 &mdash; Pre-Launch Required (8 items)</h3>
+        <div class="table-wrap" style="margin-bottom:1.5rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30px;">#</th>
+                        <th>Issue</th>
+                        <th>Affected</th>
+                        <th>Fix</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Verify Yoast-to-Rank Math metadata on top pages</td>
+                        <td>EF, BF, MB</td>
+                        <td>Compare meta titles/descriptions for top 50 organic pages per site</td>
+                        <td>SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Redirect map for 42 dropped products</td>
+                        <td>Staging</td>
+                        <td>Create 301 redirects to nearest category or equivalent product</td>
+                        <td>SEO / Content</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Verify 149 restructured LUL product redirects</td>
+                        <td>Staging</td>
+                        <td>Confirm each legacy LUL URL maps to new consolidated product</td>
+                        <td>SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Migrate critical missing media</td>
+                        <td>Staging</td>
+                        <td>Cross-reference 10,459 missing images; migrate those in active content</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Convert WPBakery shortcode content</td>
+                        <td>EF, LUL pages</td>
+                        <td>Install WPBakery on staging or convert to Gutenberg/HTML</td>
+                        <td>Developer / Content</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Fix staging settings drift</td>
+                        <td>Staging</td>
+                        <td>Correct site title, description, admin email, timezone</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Set up Impact Lighting Co DNS redirect</td>
+                        <td>Impact Lighting</td>
+                        <td>Configure DNS-level 301 to EF lighting category page</td>
+                        <td>Developer / DNS</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Restore missing Backdrops Fantastic content</td>
+                        <td>Staging</td>
+                        <td>Import or recreate 59 missing BF pages/products on staging</td>
+                        <td>Content / Developer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- P2 -->
+        <h3 style="color:var(--primary);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P2 &mdash; Post-Launch Priority (8 items)</h3>
+        <div class="table-wrap" style="margin-bottom:1.5rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30px;">#</th>
+                        <th>Issue</th>
+                        <th>Fix</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Add alt text to 3,886 EF images</td>
+                        <td>Bulk generate using product names and categories; prioritise top landing pages</td>
+                        <td>Content / SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Optimise 1,158 oversized images</td>
+                        <td>Bulk compress to <200KB with WebP conversion</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Review 736 content-drifted EF pages</td>
+                        <td>Sample top 50 organic pages; verify drift is intentional</td>
+                        <td>Content / SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Monitor Search Console for 404 spikes</td>
+                        <td>Set up daily monitoring dashboard for first 30 days post-migration</td>
+                        <td>SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Submit updated sitemaps</td>
+                        <td>Generate and submit sitemaps for consolidated site via Search Console</td>
+                        <td>SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Update Google Business Profiles</td>
+                        <td>Update GBP listings to point to new consolidated URLs</td>
+                        <td>Marketing / SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Update directory listings</td>
+                        <td>20+ directories list legacy domain URLs; update to consolidated domain</td>
+                        <td>Marketing</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p2">P2</span></td>
+                        <td>Fix Modular Backdrops timezone</td>
+                        <td>Set timezone_string to Australia/Brisbane before any data exports</td>
+                        <td>Developer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- P3 -->
+        <h3 style="color:var(--success);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P3 &mdash; Optimisation (4 items)</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30px;">#</th>
+                        <th>Issue</th>
+                        <th>Fix</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-tag priority-p3">P3</span></td>
+                        <td>Expand product ratings coverage</td>
+                        <td>Encourage reviews on WooCommerce products; configure schema for all categories</td>
+                        <td>Marketing / SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p3">P3</span></td>
+                        <td>Implement structured data for all product types</td>
+                        <td>Add Product, Event, and LocalBusiness schema across relevant page types</td>
+                        <td>SEO / Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p3">P3</span></td>
+                        <td>Clean up legacy redirect rules</td>
+                        <td>After 6 months, audit and remove redirects with zero hits</td>
+                        <td>SEO</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p3">P3</span></td>
+                        <td>Consolidate remaining media library</td>
+                        <td>Migrate remaining useful images from legacy media libraries</td>
+                        <td>Content / Developer</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ===== 10. APPENDIX ===== -->
+    <section class="section" id="appendix">
+        <div class="section-header">
+            <div class="section-number">10</div>
+            <h2>Appendix &mdash; Detailed Sub-Reports</h2>
+        </div>
+
+        <p style="margin-bottom:1rem;">The following detailed reports provide granular data supporting the findings in this document:</p>
+
+        <div class="appendix-links">
+            <a href="reports/final/ULTIMATE-MIGRATION-AUDIT-REPORT-v4-API.html" class="appendix-link">
+                <span class="link-icon">&#9654;</span>
+                <span class="link-label">
+                    Ultimate Migration Audit Report (v4 API)
+                    <span>Full technical audit with all 20 check results and raw data tables</span>
+                </span>
+            </a>
+            <a href="reports/live-api/woocommerce-completeness-audit.html" class="appendix-link">
+                <span class="link-icon">&#9654;</span>
+                <span class="link-label">
+                    WooCommerce Completeness Audit
+                    <span>Product-by-product comparison across all 4 domains and staging</span>
+                </span>
+            </a>
+            <a href="reports/live-api/media-library-audit.html" class="appendix-link">
+                <span class="link-icon">&#9654;</span>
+                <span class="link-label">
+                    Media Library Audit
+                    <span>Image counts, alt text coverage, file sizes, and migration gaps</span>
+                </span>
+            </a>
+            <a href="reports/live-api/studiohawk-schema-audit-comparison.html" class="appendix-link">
+                <span class="link-icon">&#9654;</span>
+                <span class="link-label">
+                    StudioHawk Schema Audit Comparison
+                    <span>Structured data comparison between live sites and staging</span>
+                </span>
+            </a>
+            <a href="process-summary.html" class="appendix-link" style="opacity:0.6;">
+                <span class="link-icon">&#9654;</span>
+                <span class="link-label">
+                    Process Summary
+                    <span>Internal reference &mdash; audit methodology and data collection log</span>
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="report-footer">
+        Events Fantastic Australia &middot; Independent Migration Audit &middot; April 2026<br>
+        This audit was conducted using full WordPress admin API access and direct database queries across all 6 WP Engine environments.<br>
+        Backlink data sourced from Semrush. Content analysis performed at the database level against all published post types.
+    </footer>
+
+</div>
 </body>
 </html>
