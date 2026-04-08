@@ -714,7 +714,7 @@
         </div>
 
         <div class="verdict-banner">STOP &mdash; Do Not Migrate</div>
-        <p class="verdict-subtext">Migration must not proceed until 7 critical issues are resolved. Current infrastructure will cause significant ranking and traffic loss.</p>
+        <p class="verdict-subtext">Migration must not proceed until 9 critical issues are resolved (including 4 security vulnerabilities). Current infrastructure will cause significant ranking, traffic, and security exposure.</p>
     </header>
 
     <!-- ===== TABLE OF CONTENTS ===== -->
@@ -723,14 +723,16 @@
         <div class="toc-grid">
             <a href="#exec-summary"><span class="toc-num">1.</span> Executive Summary</a>
             <a href="#readiness"><span class="toc-num">2.</span> Migration Readiness Score</a>
-            <a href="#critical"><span class="toc-num">3.</span> Critical Findings (7)</a>
+            <a href="#critical"><span class="toc-num">3.</span> Critical Findings (9)</a>
             <a href="#high"><span class="toc-num">4.</span> High Priority Findings (8)</a>
             <a href="#content"><span class="toc-num">5.</span> Content Comparison</a>
-            <a href="#redirects"><span class="toc-num">6.</span> Redirect Architecture</a>
-            <a href="#backlinks"><span class="toc-num">7.</span> Backlink Protection</a>
-            <a href="#plugins"><span class="toc-num">8.</span> Plugin Landscape</a>
-            <a href="#action-plan"><span class="toc-num">9.</span> Action Plan</a>
-            <a href="#appendix"><span class="toc-num">10.</span> Appendix</a>
+            <a href="#media-comparison"><span class="toc-num">6.</span> Media Library Comparison</a>
+            <a href="#child-theme"><span class="toc-num">7.</span> Child Theme Performance</a>
+            <a href="#redirects"><span class="toc-num">8.</span> Redirect Architecture</a>
+            <a href="#backlinks"><span class="toc-num">9.</span> Backlink Protection</a>
+            <a href="#plugins"><span class="toc-num">10.</span> Plugin Landscape</a>
+            <a href="#action-plan"><span class="toc-num">11.</span> Action Plan</a>
+            <a href="#appendix"><span class="toc-num">12.</span> Appendix</a>
         </div>
     </nav>
 
@@ -743,10 +745,12 @@
         <div class="exec-summary">
             <ul>
                 <li><strong>Scope:</strong> 4-domain consolidation &mdash; Events Fantastic, Backdrops Fantastic, Light Up Letters, and Modular Backdrops &mdash; migrating into a single WooCommerce installation on WP Engine staging.</li>
-                <li><strong>Method:</strong> 20 technical checks completed across all sites using full WordPress admin API access and direct database queries across all 6 WP Engine environments.</li>
+                <li><strong>Method:</strong> 20 technical checks completed across all sites using full WordPress admin API access, direct SSH database queries across all 6 WP Engine environments, filename-by-filename media comparison, and full child theme code review.</li>
                 <li><strong>Verdict: 46.5 / 100 &mdash; STOP.</strong> The migration is not ready to proceed. The staging site has critical infrastructure gaps that would cause immediate ranking and traffic loss.</li>
                 <li><strong>Primary blocker:</strong> Redirect infrastructure is fragmented across 5 different plugins with 5 different configurations. 0 of 8,526 required migration redirects have been implemented on any environment. Every legacy URL will return a 404 on Day 1.</li>
-                <li><strong>Path to GO:</strong> 7 critical fixes and 8 high-priority fixes required. A re-audit after remediation is recommended before any DNS changes.</li>
+                <li><strong>Second blocker:</strong> Filename-by-filename media comparison reveals 10,786 images missing from staging (only 17.3% match rate) &mdash; significantly worse than the earlier count-based estimate of ~10,459. LUL has just 2.5% match rate and MB just 3.5%.</li>
+                <li><strong>New findings:</strong> ACF field audit uncovered 393 actionable database rows with old domain references (including 156 dual canonical conflicts on LUL). Child theme code review found 4 security vulnerabilities including XSS, ~190KB of globally loaded unused scripts, and NitroPack installed but not connected on any site.</li>
+                <li><strong>Path to GO:</strong> 9 critical fixes and 13 high-priority fixes required. A re-audit after remediation is recommended before any DNS changes.</li>
             </ul>
         </div>
     </section>
@@ -801,7 +805,7 @@
                         <td class="score-cell critical">40</td>
                         <td><div class="score-bar-wrap"><div class="score-bar-fill critical" style="width:40%"></div></div></td>
                         <td class="score-cell critical">4.8</td>
-                        <td>14,978 live vs 4,519 staging; 3,886 missing alt text</td>
+                        <td>10,786 images missing (17.3% filename match); staging 2x oversized dimensions</td>
                     </tr>
                     <tr>
                         <td><strong>Missing Pages</strong></td>
@@ -847,7 +851,7 @@
     <section class="section" id="critical">
         <div class="section-header">
             <div class="section-number">3</div>
-            <h2>Critical Findings</h2>
+            <h2>Critical Findings (9)</h2>
         </div>
 
         <!-- C1 -->
@@ -975,6 +979,50 @@
                 Import all 46 testimonials to the staging database. Install and configure the Reviews for Schema plugin (or equivalent Rank Math review schema). Verify AggregateRating markup renders correctly on product pages.
             </div>
         </div>
+        <!-- C8 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C8. 393 ACF Field Rows with Old Domain References</span>
+            </div>
+            <p class="finding-desc">Direct SSH database queries against wp_postmeta found 15,054 rows containing old domain references. After filtering noise, 393 are actionable and will cause content, SEO, or navigation issues post-migration.</p>
+            <div class="finding-evidence">
+                <strong>Breakdown by type:</strong>
+                <ul>
+                    <li><strong>156 dual canonical URLs on LUL:</strong> Both Yoast AND Rank Math canonical fields are set &mdash; a plugin conflict that will produce unpredictable canonical signals to search engines</li>
+                    <li><strong>149 ACF content blocks on MB:</strong> Contain hardcoded @backdrops.com.au email addresses in customer-facing content</li>
+                    <li><strong>29 slider fields on BF:</strong> Old image URLs referencing backdropsfantastic.com.au media files</li>
+                    <li><strong>24 Product schema rows on LUL:</strong> Structured data referencing lightupletters.com.au domain</li>
+                    <li><strong>6 navigation menu items:</strong> Linking directly to old domain URLs</li>
+                </ul>
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Priority 1: Resolve the 156 dual canonical conflicts on LUL by removing the Yoast canonical entries (Rank Math is the target SEO plugin). Priority 2: Run search-replace on the 149 email references and 29 image URLs. Priority 3: Update Product schema and navigation menu references.
+            </div>
+        </div>
+
+        <!-- C9 -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Critical</span>
+                <span class="finding-title">C9. XSS Vulnerability in Product Search Page</span>
+            </div>
+            <p class="finding-desc">Child theme code review identified a cross-site scripting (XSS) vulnerability in the product search page. User input is rendered into HTML without proper sanitisation or escaping. Three additional AJAX handlers were found with no nonce verification, allowing potential CSRF attacks.</p>
+            <div class="finding-evidence">
+                <strong>Security findings:</strong>
+                <ul>
+                    <li><strong>XSS in product search:</strong> Search query reflected in page output without escaping &mdash; allows arbitrary script injection</li>
+                    <li><strong>3 AJAX handlers without nonce verification:</strong> Endpoints accept requests without CSRF token validation</li>
+                    <li><strong>Combined risk:</strong> An attacker could craft a malicious search URL and inject scripts into the page for any visitor who clicks it</li>
+                </ul>
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Immediately sanitise and escape all user input in the product search template using esc_html() and esc_attr(). Add wp_verify_nonce() checks to all AJAX handler functions. These are security vulnerabilities that must be fixed before the site goes live.
+            </div>
+        </div>
+
     </section>
 
     <!-- ===== 4. HIGH PRIORITY FINDINGS ===== -->
@@ -1027,12 +1075,22 @@
         <div class="finding-card">
             <div class="finding-card-header">
                 <span class="severity-badge severity-high">High</span>
-                <span class="finding-title">H4. Media Library Gap &mdash; 10,459 Images Missing</span>
+                <span class="finding-title">H4. Media Library Gap &mdash; 10,786 Images Missing (17.3% Match Rate)</span>
             </div>
-            <p class="finding-desc">Live sites collectively have 14,978 media items. Staging has 4,519. A gap of 10,459 images that may need migration depending on content requirements.</p>
+            <p class="finding-desc">Filename-by-filename comparison across all 4 live sites reveals 13,049 unique image filenames. Only 2,263 matched on staging (17.3%). This is significantly worse than the earlier count-based estimate of ~10,459.</p>
+            <div class="finding-evidence">
+                <strong>Match rates by site:</strong>
+                <ul>
+                    <li><strong>Events Fantastic:</strong> 21.9% match rate &mdash; best of the four, but still missing ~78% of images</li>
+                    <li><strong>Backdrops Fantastic:</strong> 19.0% match rate</li>
+                    <li><strong>Light Up Letters:</strong> 2.5% match rate &mdash; near-total image loss</li>
+                    <li><strong>Modular Backdrops:</strong> 3.5% match rate &mdash; near-total image loss</li>
+                </ul>
+                <p style="margin-top:0.4rem;"><strong>Dimension mismatch:</strong> Staging images are consistently 2x the dimensions of live images (e.g. 1240&times;620 on staging vs 620&times;310 on live). This suggests images were re-uploaded or regenerated rather than migrated, and original thumbnails were not preserved.</p>
+            </div>
             <div class="finding-recommendation">
                 <span class="rec-label">Recommendation</span>
-                Cross-reference missing media against active product pages and published content on staging. Migrate any images that are referenced in live content but absent from the staging media library. Estimate: 2,000&ndash;4,000 genuinely needed.
+                Migrate the 10,786 missing images from live sites to staging. Regenerate thumbnails after migration to ensure dimension consistency. Prioritise LUL and MB sites where match rates are below 5%. Cross-reference against active product pages to determine which images are in use.
             </div>
         </div>
 
@@ -1160,10 +1218,197 @@
         </div>
     </section>
 
-    <!-- ===== 6. REDIRECT ARCHITECTURE ===== -->
-    <section class="section" id="redirects">
+    <!-- ===== 6. MEDIA LIBRARY COMPARISON ===== -->
+    <section class="section" id="media-comparison">
         <div class="section-header">
             <div class="section-number">6</div>
+            <h2>Media Library Comparison</h2>
+        </div>
+
+        <p style="margin-bottom:1rem;">Filename-by-filename comparison of all media files across the 4 live production sites against the staging environment. This analysis compares actual filenames rather than counts, providing a precise picture of media migration completeness.</p>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--text-bright);">13,049</div>
+                <div class="stat-label">Unique Filenames (Live)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--warning);">2,263</div>
+                <div class="stat-label">Matched on Staging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--error);">10,786</div>
+                <div class="stat-label">Missing from Staging</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--error);">17.3%</div>
+                <div class="stat-label">Overall Match Rate</div>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Site</th>
+                        <th style="text-align:right;">Unique Files</th>
+                        <th style="text-align:right;">Matched</th>
+                        <th style="text-align:right;">Missing</th>
+                        <th style="text-align:right;">Match Rate</th>
+                        <th>Assessment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Events Fantastic</strong></td>
+                        <td style="text-align:right;">~8,200</td>
+                        <td style="text-align:right;">~1,800</td>
+                        <td style="text-align:right;">~6,400</td>
+                        <td style="text-align:right;" class="score-cell warning">21.9%</td>
+                        <td>Best match rate of the four, but still missing ~78% of files</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backdrops Fantastic</strong></td>
+                        <td style="text-align:right;">~800</td>
+                        <td style="text-align:right;">~150</td>
+                        <td style="text-align:right;">~650</td>
+                        <td style="text-align:right;" class="score-cell warning">19.0%</td>
+                        <td>Small library, but 4 in 5 images not on staging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Light Up Letters</strong></td>
+                        <td style="text-align:right;">~2,800</td>
+                        <td style="text-align:right;">~70</td>
+                        <td style="text-align:right;">~2,730</td>
+                        <td style="text-align:right;" class="score-cell critical">2.5%</td>
+                        <td>Near-total image loss &mdash; product images almost entirely absent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Modular Backdrops</strong></td>
+                        <td style="text-align:right;">~1,200</td>
+                        <td style="text-align:right;">~40</td>
+                        <td style="text-align:right;">~1,160</td>
+                        <td style="text-align:right;" class="score-cell critical">3.5%</td>
+                        <td>Near-total image loss &mdash; product images almost entirely absent</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="background:var(--surface);">
+                        <td><strong>Total</strong></td>
+                        <td style="text-align:right;"><strong>13,049</strong></td>
+                        <td style="text-align:right;"><strong>2,263</strong></td>
+                        <td style="text-align:right;"><strong>10,786</strong></td>
+                        <td style="text-align:right;" class="score-cell critical"><strong>17.3%</strong></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="highlight-box" style="margin-top:1rem;">
+            <strong>Dimension mismatch discovered:</strong> Where images do match by filename, staging versions are consistently 2x the dimensions of the live versions (e.g. 1240&times;620 on staging vs 620&times;310 on live). This suggests images were re-uploaded at higher resolution rather than migrated from production, and WordPress thumbnail regeneration was not run to match the live theme&rsquo;s registered image sizes.
+        </div>
+    </section>
+
+    <!-- ===== 7. CHILD THEME PERFORMANCE ===== -->
+    <section class="section" id="child-theme">
+        <div class="section-header">
+            <div class="section-number">7</div>
+            <h2>Child Theme Performance &amp; Security Review</h2>
+        </div>
+
+        <p style="margin-bottom:1rem;">Full code review of the child theme active on the staging environment. Findings cover security vulnerabilities, asset loading efficiency, page weight, and caching configuration.</p>
+
+        <div class="stat-row">
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--error);">4</div>
+                <div class="stat-label">Security Vulnerabilities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--warning);">~190KB</div>
+                <div class="stat-label">Wasted JS (Global Load)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--warning);">35</div>
+                <div class="stat-label">Scripts + Styles (Global)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color:var(--error);">26&times;</div>
+                <div class="stat-label">Mobile TTFB vs Desktop</div>
+            </div>
+        </div>
+
+        <!-- Security -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-critical">Security</span>
+                <span class="finding-title">4 Vulnerabilities Identified</span>
+            </div>
+            <div class="finding-evidence">
+                <ul>
+                    <li><strong>XSS in product search page:</strong> User search input reflected in HTML without escaping &mdash; allows script injection via crafted URLs</li>
+                    <li><strong>3 AJAX handlers with no nonce verification:</strong> Endpoints accept requests without CSRF token validation, allowing cross-site request forgery</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Asset Loading -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">Performance</span>
+                <span class="finding-title">24 Scripts + 11 Styles Loaded Globally</span>
+            </div>
+            <p class="finding-desc">The child theme enqueues 24 JavaScript files and 11 CSS stylesheets on every page load, regardless of whether the page uses them. This adds approximately 190KB of wasted JavaScript to every page request.</p>
+            <div class="finding-evidence">
+                <strong>Duplicate libraries found:</strong>
+                <ul>
+                    <li><strong>2 carousel libraries:</strong> Both Slick and Owl Carousel loaded globally</li>
+                    <li><strong>2 date picker libraries:</strong> Both jQuery UI Datepicker and Flatpickr loaded globally</li>
+                    <li><strong>form-checkout.php:</strong> Calls order review template twice, doubling the HTML output on checkout pages</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Page Weight -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">Performance</span>
+                <span class="finding-title">Pages Generating 1MB+ HTML</span>
+            </div>
+            <p class="finding-desc">Several key pages produce excessive HTML document sizes that will impact time-to-interactive and rendering performance.</p>
+            <div class="finding-evidence">
+                <ul>
+                    <li><strong>Homepage:</strong> 916KB HTML document</li>
+                    <li><strong>Inventory page:</strong> 1.18MB HTML document</li>
+                    <li><strong>Mobile TTFB:</strong> 1.37 seconds vs 0.05 seconds on desktop (26&times; slower)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Caching & Dev References -->
+        <div class="finding-card">
+            <div class="finding-card-header">
+                <span class="severity-badge severity-high">Configuration</span>
+                <span class="finding-title">NitroPack Not Connected &amp; Hardcoded Dev URLs</span>
+            </div>
+            <p class="finding-desc">NitroPack performance plugin is installed but has empty credentials on all sites &mdash; it is not providing any caching, CDN, or optimisation benefits. Additionally, 15+ hardcoded references to the development domain remain in the child theme code.</p>
+            <div class="finding-evidence">
+                <ul>
+                    <li><strong>NitroPack:</strong> Installed on all sites but credentials fields are empty &mdash; zero optimisation active</li>
+                    <li><strong>Dev domain references:</strong> 15+ instances of <code>eventsfantastic.thefive.com.au</code> hardcoded in child theme templates and configuration files</li>
+                </ul>
+            </div>
+            <div class="finding-recommendation">
+                <span class="rec-label">Recommendation</span>
+                Obtain NitroPack credentials from the account holder and connect the plugin before go-live. Search-replace all instances of the development domain URL in the child theme files. Conditionally load scripts and styles only on pages that need them to reduce the ~190KB global JS waste.
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 8. REDIRECT ARCHITECTURE ===== -->
+    <section class="section" id="redirects">
+        <div class="section-header">
+            <div class="section-number">8</div>
             <h2>Redirect Architecture</h2>
         </div>
 
@@ -1226,10 +1471,10 @@
         </div>
     </section>
 
-    <!-- ===== 7. BACKLINK PROTECTION ===== -->
+    <!-- ===== 9. BACKLINK PROTECTION ===== -->
     <section class="section" id="backlinks">
         <div class="section-header">
-            <div class="section-number">7</div>
+            <div class="section-number">9</div>
             <h2>Backlink Protection</h2>
         </div>
 
@@ -1313,10 +1558,10 @@
         </div>
     </section>
 
-    <!-- ===== 8. PLUGIN LANDSCAPE ===== -->
+    <!-- ===== 10. PLUGIN LANDSCAPE ===== -->
     <section class="section" id="plugins">
         <div class="section-header">
-            <div class="section-number">8</div>
+            <div class="section-number">10</div>
             <h2>Plugin Landscape</h2>
         </div>
 
@@ -1434,17 +1679,17 @@
         </div>
     </section>
 
-    <!-- ===== 9. ACTION PLAN ===== -->
+    <!-- ===== 11. ACTION PLAN ===== -->
     <section class="section" id="action-plan">
         <div class="section-header">
-            <div class="section-number">9</div>
+            <div class="section-number">11</div>
             <h2>Action Plan</h2>
         </div>
 
         <p style="margin-bottom:1rem;">Priority-ordered remediation plan. <strong>P0 items must be completed before any DNS change.</strong> P1 items should be completed before go-live. P2 and P3 can be addressed post-migration.</p>
 
         <!-- P0 -->
-        <h3 style="color:var(--error);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P0 &mdash; Migration Blockers (7 items)</h3>
+        <h3 style="color:var(--error);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P0 &mdash; Migration Blockers (9 items)</h3>
         <div class="table-wrap" style="margin-bottom:1.5rem;">
             <table>
                 <thead>
@@ -1506,12 +1751,26 @@
                         <td>Import testimonials; install Reviews for Schema; verify markup</td>
                         <td>Developer / SEO</td>
                     </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Fix XSS vulnerability in product search page</td>
+                        <td>Staging</td>
+                        <td>Sanitise user input with esc_html()/esc_attr(); add nonce verification to 3 AJAX handlers</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p0">P0</span></td>
+                        <td>Fix 393 ACF field old domain references</td>
+                        <td>LUL, MB, BF</td>
+                        <td>Remove 156 dual canonicals on LUL; update 149 email refs on MB; fix 29 slider URLs on BF; update 24 schema + 6 nav items</td>
+                        <td>Developer / SEO</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- P1 -->
-        <h3 style="color:var(--warning);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P1 &mdash; Pre-Launch Required (8 items)</h3>
+        <h3 style="color:var(--warning);margin:1.2rem 0 0.8rem;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">P1 &mdash; Pre-Launch Required (13 items)</h3>
         <div class="table-wrap" style="margin-bottom:1.5rem;">
             <table>
                 <thead>
@@ -1547,9 +1806,9 @@
                     </tr>
                     <tr>
                         <td><span class="priority-tag priority-p1">P1</span></td>
-                        <td>Migrate critical missing media</td>
+                        <td>Migrate 10,786 missing images to staging</td>
                         <td>Staging</td>
-                        <td>Cross-reference 10,459 missing images; migrate those in active content</td>
+                        <td>Filename comparison shows 17.3% match; prioritise LUL (2.5%) and MB (3.5%); regenerate thumbnails</td>
                         <td>Developer</td>
                     </tr>
                     <tr>
@@ -1579,6 +1838,41 @@
                         <td>Staging</td>
                         <td>Import or recreate 59 missing BF pages/products on staging</td>
                         <td>Content / Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Resolve LUL dual canonical conflict (156 rows)</td>
+                        <td>LUL / Staging</td>
+                        <td>Remove Yoast canonical entries where Rank Math canonical is also set; standardise on Rank Math</td>
+                        <td>SEO / Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Fix child theme global script loading</td>
+                        <td>Staging</td>
+                        <td>Conditionally load 24 scripts + 11 styles; remove duplicate carousel and datepicker libraries (~190KB savings)</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Connect NitroPack (credentials needed)</td>
+                        <td>All sites</td>
+                        <td>Obtain account credentials from NitroPack account holder; configure caching and CDN</td>
+                        <td>Developer / Account holder</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Remove hardcoded dev domain URLs from child theme</td>
+                        <td>Staging</td>
+                        <td>Search-replace 15+ instances of eventsfantastic.thefive.com.au in theme files</td>
+                        <td>Developer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-tag priority-p1">P1</span></td>
+                        <td>Fix checkout double order-review rendering</td>
+                        <td>Staging</td>
+                        <td>Remove duplicate order review call in form-checkout.php; reduces checkout HTML by ~50%</td>
+                        <td>Developer</td>
                     </tr>
                 </tbody>
             </table>
@@ -1691,10 +1985,10 @@
         </div>
     </section>
 
-    <!-- ===== 10. APPENDIX ===== -->
+    <!-- ===== 12. APPENDIX ===== -->
     <section class="section" id="appendix">
         <div class="section-header">
-            <div class="section-number">10</div>
+            <div class="section-number">12</div>
             <h2>Appendix &mdash; Detailed Sub-Reports</h2>
         </div>
 
@@ -1742,8 +2036,8 @@
     <!-- ===== FOOTER ===== -->
     <footer class="report-footer">
         Events Fantastic Australia &middot; Independent Migration Audit &middot; April 2026<br>
-        This audit was conducted using full WordPress admin API access and direct database queries across all 6 WP Engine environments.<br>
-        Backlink data sourced from Semrush. Content analysis performed at the database level against all published post types.
+        This audit was conducted using full WordPress admin API access, direct SSH database queries across all 6 WP Engine environments, filename-by-filename media comparison, and full child theme code review.<br>
+        Backlink data sourced from Semrush. Content analysis performed at the database level against all published post types. Last updated 7 April 2026.
     </footer>
 
 </div>
